@@ -1,0 +1,224 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{9023C2BC-7477-E627-79FC-76EE7396F02B}|tests\\Api.Tests\\Api.Tests.csproj|c:\\users\\natha\\onedrive\\documents\\github\\pucp_ai2526\\projects\\dotnet-ai-store-assistant\\tests\\api.tests\\customwebapplicationfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9023C2BC-7477-E627-79FC-76EE7396F02B}|tests\\Api.Tests\\Api.Tests.csproj|solutionrelative:tests\\api.tests\\customwebapplicationfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9023C2BC-7477-E627-79FC-76EE7396F02B}|tests\\Api.Tests\\Api.Tests.csproj|c:\\users\\natha\\onedrive\\documents\\github\\pucp_ai2526\\projects\\dotnet-ai-store-assistant\\tests\\api.tests\\productscontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9023C2BC-7477-E627-79FC-76EE7396F02B}|tests\\Api.Tests\\Api.Tests.csproj|solutionrelative:tests\\api.tests\\productscontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|c:\\users\\natha\\onedrive\\documents\\github\\pucp_ai2526\\projects\\dotnet-ai-store-assistant\\src\\api\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|solutionrelative:src\\api\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|c:\\users\\natha\\onedrive\\documents\\github\\pucp_ai2526\\projects\\dotnet-ai-store-assistant\\src\\api\\domain\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|solutionrelative:src\\api\\domain\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|c:\\users\\natha\\onedrive\\documents\\github\\pucp_ai2526\\projects\\dotnet-ai-store-assistant\\src\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|solutionrelative:src\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|c:\\users\\natha\\onedrive\\documents\\github\\pucp_ai2526\\projects\\dotnet-ai-store-assistant\\src\\api\\services\\ragservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|solutionrelative:src\\api\\services\\ragservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|c:\\users\\natha\\onedrive\\documents\\github\\pucp_ai2526\\projects\\dotnet-ai-store-assistant\\src\\api\\controllers\\chatcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|solutionrelative:src\\api\\controllers\\chatcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|c:\\users\\natha\\onedrive\\documents\\github\\pucp_ai2526\\projects\\dotnet-ai-store-assistant\\src\\api\\services\\prompttemplateservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|solutionrelative:src\\api\\services\\prompttemplateservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|c:\\users\\natha\\onedrive\\documents\\github\\pucp_ai2526\\projects\\dotnet-ai-store-assistant\\src\\api\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|solutionrelative:src\\api\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9023C2BC-7477-E627-79FC-76EE7396F02B}|tests\\Api.Tests\\Api.Tests.csproj|c:\\users\\natha\\onedrive\\documents\\github\\pucp_ai2526\\projects\\dotnet-ai-store-assistant\\tests\\api.tests\\recommendationscontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9023C2BC-7477-E627-79FC-76EE7396F02B}|tests\\Api.Tests\\Api.Tests.csproj|solutionrelative:tests\\api.tests\\recommendationscontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9023C2BC-7477-E627-79FC-76EE7396F02B}|tests\\Api.Tests\\Api.Tests.csproj|c:\\users\\natha\\onedrive\\documents\\github\\pucp_ai2526\\projects\\dotnet-ai-store-assistant\\tests\\api.tests\\chatcontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9023C2BC-7477-E627-79FC-76EE7396F02B}|tests\\Api.Tests\\Api.Tests.csproj|solutionrelative:tests\\api.tests\\chatcontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|c:\\users\\natha\\onedrive\\documents\\github\\pucp_ai2526\\projects\\dotnet-ai-store-assistant\\src\\api\\domain\\supplierinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{568E216B-4065-4243-A47A-99435EC44B1A}|src\\Api\\Api.csproj|solutionrelative:src\\api\\domain\\supplierinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 7,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ProductsController.cs",
+              "DocumentMoniker": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Controllers\\ProductsController.cs",
+              "RelativeDocumentMoniker": "src\\Api\\Controllers\\ProductsController.cs",
+              "ToolTip": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Controllers\\ProductsController.cs",
+              "RelativeToolTip": "src\\Api\\Controllers\\ProductsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-12T00:22:46.563Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ChatController.cs",
+              "DocumentMoniker": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Controllers\\ChatController.cs",
+              "RelativeDocumentMoniker": "src\\Api\\Controllers\\ChatController.cs",
+              "ToolTip": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Controllers\\ChatController.cs",
+              "RelativeToolTip": "src\\Api\\Controllers\\ChatController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAwAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-12T00:19:11.377Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Program.cs",
+              "RelativeDocumentMoniker": "src\\Api\\Program.cs",
+              "ToolTip": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Program.cs",
+              "RelativeToolTip": "src\\Api\\Program.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-12T00:18:41.83Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "src\\Api\\appsettings.Development.json",
+              "ToolTip": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\appsettings.Development.json",
+              "RelativeToolTip": "src\\Api\\appsettings.Development.json",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABYAAACIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-11-12T00:14:45.827Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "PromptTemplateService.cs",
+              "DocumentMoniker": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Services\\PromptTemplateService.cs",
+              "RelativeDocumentMoniker": "src\\Api\\Services\\PromptTemplateService.cs",
+              "ToolTip": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Services\\PromptTemplateService.cs",
+              "RelativeToolTip": "src\\Api\\Services\\PromptTemplateService.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAoAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-12T00:13:27.474Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ProductsControllerTests.cs",
+              "DocumentMoniker": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\tests\\Api.Tests\\ProductsControllerTests.cs",
+              "RelativeDocumentMoniker": "tests\\Api.Tests\\ProductsControllerTests.cs",
+              "ToolTip": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\tests\\Api.Tests\\ProductsControllerTests.cs",
+              "RelativeToolTip": "tests\\Api.Tests\\ProductsControllerTests.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAMwBYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-11T23:49:46.302Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Product.cs",
+              "DocumentMoniker": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Domain\\Product.cs",
+              "RelativeDocumentMoniker": "src\\Api\\Domain\\Product.cs",
+              "ToolTip": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Domain\\Product.cs",
+              "RelativeToolTip": "src\\Api\\Domain\\Product.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-11T23:44:36.071Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CustomWebApplicationFactory.cs",
+              "DocumentMoniker": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\tests\\Api.Tests\\CustomWebApplicationFactory.cs",
+              "RelativeDocumentMoniker": "tests\\Api.Tests\\CustomWebApplicationFactory.cs",
+              "ToolTip": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\tests\\Api.Tests\\CustomWebApplicationFactory.cs",
+              "RelativeToolTip": "tests\\Api.Tests\\CustomWebApplicationFactory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBQAAABHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-11T23:41:39.519Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "RecommendationsControllerTests.cs",
+              "DocumentMoniker": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\tests\\Api.Tests\\RecommendationsControllerTests.cs",
+              "RelativeDocumentMoniker": "tests\\Api.Tests\\RecommendationsControllerTests.cs",
+              "ToolTip": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\tests\\Api.Tests\\RecommendationsControllerTests.cs",
+              "RelativeToolTip": "tests\\Api.Tests\\RecommendationsControllerTests.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-11T23:50:11.373Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "SupplierInfo.cs",
+              "DocumentMoniker": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Domain\\SupplierInfo.cs",
+              "RelativeDocumentMoniker": "src\\Api\\Domain\\SupplierInfo.cs",
+              "ToolTip": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Domain\\SupplierInfo.cs",
+              "RelativeToolTip": "src\\Api\\Domain\\SupplierInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-11T23:44:20.561Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "RagService.cs",
+              "DocumentMoniker": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Services\\RagService.cs",
+              "RelativeDocumentMoniker": "src\\Api\\Services\\RagService.cs",
+              "ToolTip": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\src\\Api\\Services\\RagService.cs",
+              "RelativeToolTip": "src\\Api\\Services\\RagService.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAIAwwBQAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-11T23:32:38.333Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ChatControllerTests.cs",
+              "DocumentMoniker": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\tests\\Api.Tests\\ChatControllerTests.cs",
+              "RelativeDocumentMoniker": "tests\\Api.Tests\\ChatControllerTests.cs",
+              "ToolTip": "C:\\Users\\natha\\OneDrive\\Documents\\GitHub\\PUCP_AI2526\\projects\\dotnet-ai-store-assistant\\tests\\Api.Tests\\ChatControllerTests.cs",
+              "RelativeToolTip": "tests\\Api.Tests\\ChatControllerTests.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAgwCkAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-11T22:48:08.825Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
