@@ -1,5 +1,4 @@
 from datetime import datetime
-from playwright.sync_api import Page
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 
 from base.base_scraper import BaseNewsScraper
@@ -8,36 +7,48 @@ from base.base_models import Article
 
 class KotakuReviewsScraper(BaseNewsScraper):
     """
-    Scraper para los reviews de Kotaku:
-    https://kotaku.com/reviews
+    Scraper para los reviews de Kotaku.
+    Recorre varias páginas: /reviews, /reviews/page/2, /reviews/page/3, ...
     """
     source_name = "Kotaku-Reviews"
-
-    start_urls = [
-        "https://kotaku.com/reviews",
-    ]
-
     BASE_URL = "https://kotaku.com"
 
-    # ---------------- Helpers de URL ----------------
+    def __init__(self, max_pages: int = 5, output_dir: str = "data/raw", meta_dir: str = "data/meta"):
+        super().__init__(output_dir=output_dir, meta_dir=meta_dir)
+        self.max_pages = max_pages
+
+    @property
+    def start_urls(self) -> list[str]:
+        """
+        Genera las URLs de las páginas de reviews:
+        Página 1  -> https://kotaku.com/reviews
+        Página 2+ -> https://kotaku.com/reviews/page/N
+        """
+        urls: list[str] = ["https://kotaku.com/reviews"]
+        for page in range(2, self.max_pages + 1):
+            urls.append(f"https://kotaku.com/reviews/page/{page}")
+        return urls
 
     def normalize_url(self, url: str) -> str:
         if url.startswith("/"):
             return self.BASE_URL + url
         return url
 
-    # ---------------- Listado de reviews ----------------
+    # ------------ LISTADO: /reviews y /reviews/page/N ------------
 
     def extract_article_links(self, page: Page):
         """
-        Usa el <a class="block" cmp-ltrk="archive-posts" ...> que encontraste
-        para sacar los links de cada review.
+        Extrae los links de las tarjetas de review.
+
+        Ejemplo HTML que encontraste:
+        <a href="https://kotaku.com/call-of-duty-black-ops-7-review-..."
+           class="block"
+           cmp-ltrk="archive-posts"
+           ...>
         """
-        #CARD_LINK_SELECTOR = 'a.block[cmp-ltrk="archive-posts"]'
         CARD_LINK_SELECTOR = 'a.block[cmp-ltrk="archive-posts"][href]'
 
         try:
-            # Espera hasta que haya al menos uno en el DOM (máx 15s)
             page.wait_for_selector(CARD_LINK_SELECTOR, timeout=15000)
         except PlaywrightTimeoutError:
             print(f"[{self.source_name}] No aparecieron reviews en el DOM, selector: {CARD_LINK_SELECTOR}")
@@ -52,35 +63,23 @@ class KotakuReviewsScraper(BaseNewsScraper):
             if not href:
                 continue
 
+            # Evitar páginas de autor:
             if "/author/" in href:
                 continue
 
             yield href
 
-    # ---------------- Review individual ----------------
+    # ------------ REVIEW INDIVIDUAL ------------
 
     def extract_article_data(self, page: Page, url: str) -> Article | None:
-        """
-        Estamos ya dentro del review individual, algo como:
-        https://kotaku.com/call-of-duty-black-ops-7-review-xxxx
-
-        Del HTML que vimos por texto:
-        - El título aparece como <h1> Call Of Duty Black Ops 7: The Kotaku Review
-        - Los párrafos de contenido empiezan directo luego del bloque “By Zack... Published...”.
-
-        Ideal:
-        - Encontrar el contenedor principal del artículo (ej. <article> o un <div> con data-*).
-        - Dentro de ese contenedor, sacar todos los <p>.
-        """
-
-        # ---- título ----
+        # --- título ---
         try:
             title = page.locator("h1").inner_text().strip()
         except Exception:
             print(f"[{self.source_name}] No se pudo obtener título para {url}")
             return None
 
-        # ---- fecha ----
+        # --- fecha ---
         published_at = None
         try:
             meta = page.locator('meta[property="article:published_time"]')
@@ -93,15 +92,15 @@ class KotakuReviewsScraper(BaseNewsScraper):
             published_at = datetime.utcnow().isoformat()
 
         # --- cuerpo del review ---
-        # <div class="entry-content prose ...">
         ARTICLE_CONTAINER_SELECTOR = "div.entry-content"
 
+        # Usamos locator directamente en la page
         container = page.locator(ARTICLE_CONTAINER_SELECTOR)
         if container.count() == 0:
             print(f"[{self.source_name}] No se encontró contenedor de artículo para {url}")
             return None
 
-        # Puedes usar p "normales", o si ves un data-cy/atributo particular, mejor:
+        # Tomamos todos los <p> dentro de ese contenedor
         paragraphs = container.locator("p").all_text_contents()
         text = "\n".join(p.strip() for p in paragraphs if p and p.strip())
 
@@ -121,3 +120,4 @@ class KotakuReviewsScraper(BaseNewsScraper):
             text=text,
             created_at=created_at,
         )
+

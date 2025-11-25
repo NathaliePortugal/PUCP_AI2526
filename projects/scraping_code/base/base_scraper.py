@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 import csv
 from typing import Iterable, List
+from pathlib import Path
 
 from datetime import datetime
 from playwright.sync_api import sync_playwright, Page
@@ -31,9 +32,15 @@ class BaseNewsScraper(ABC):
     start_urls: List[str] = []
 
     #vamos a guardar los datos en esta carpeta data/raw
-    def __init__(self, output_dir: str = "data/raw"):
+    def __init__(self, output_dir: str = "data/raw", meta_dir: str = "data/meta"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        self.meta_dir = Path(meta_dir)
+        self.meta_dir.mkdir(parents=True, exist_ok=True)
+
+        #archivo global de URLs vsitas segun la fuente
+        self.seen_urls_file = self.meta_dir / f"{self.source_name.lower()}_seen_urls.txt"
 
     # ---------- Métodos que las subclases DEBEN implementar ----------
 
@@ -70,7 +77,7 @@ class BaseNewsScraper(ABC):
 
     def ensure_csv_header(self, path: Path):
         if not path.exists():
-            with path.open("w", encoding="utf-8", newline="") as f:
+            with path.open("w", encoding="utf-8-sig", newline="") as f:
                 writer = csv.writer(f)
                 writer.writerow([
                     "id",
@@ -89,7 +96,7 @@ class BaseNewsScraper(ABC):
         if not path.exists():
             return set()
         urls = set()
-        with path.open("r", encoding="utf-8", newline="") as f:
+        with path.open("r", encoding="utf-8-sig", newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 urls.add(row["url"])
@@ -99,7 +106,7 @@ class BaseNewsScraper(ABC):
         if not articles:
             return
         self.ensure_csv_header(path)
-        with path.open("a", encoding="utf-8", newline="") as f:
+        with path.open("a", encoding="utf-8-sig", newline="") as f:
             writer = csv.writer(f)
             for art in articles:
                 writer.writerow([
@@ -112,39 +119,34 @@ class BaseNewsScraper(ABC):
                     art.created_at,
                 ])
 
+    def load_global_seen_urls(self) -> set[str]:
+        if not self.seen_urls_file.exists():
+            return set()
+        with self.seen_urls_file.open("r", encoding="utf-8-sig") as f:
+            return {line.strip() for line in f if line.strip()}
+
+    def save_global_seen_urls(self, urls: set[str]):
+        with self.seen_urls_file.open("w", encoding="utf-8-sig") as f:
+            for u in sorted(urls):
+                f.write(u + "\n")   
     # ---------- Método principal de ejecución ----------
 
     def run(self) -> list[Article]:
-        """
-        Ejecuta el scraper:
-        - Abre Playwright
-        - Recorre start_urls
-        - Extrae links
-        - Visita cada artículo
-        - Guarda CSV diario
-        - Devuelve lista de Article
-        """
         output_file = self.get_output_file_for_today()
-        existing_urls = self.load_existing_urls(output_file)
+        existing_urls_today = self.load_existing_urls(output_file)
+        # NUEVO: URLs globales vistas (hoy + días anteriores)
+        global_seen_urls = self.load_global_seen_urls()
 
         collected: list[Article] = []
 
         with sync_playwright() as pw:
             browser = pw.chromium.launch(headless=True)
-            #browser = pw.chromium.launch(headless=False, slow_mo=150) #Modo debug y ver paso a paso como se hace
-
-            # --------- CONFIG GLOBAL DE TIMEOUT ---------
-            # Esto aumenta el tiempo máximo que Playwright
-            # espera por cualquier acción (goto, locator, etc.)
             context = browser.new_context()
-            context.set_default_timeout(15000)   # 15s en vez de 30s
-            # --------------------------------------------
-
+            context.set_default_timeout(15000)
             page = context.new_page()
 
             for start_url in self.start_urls:
                 print(f"[{self.source_name}] Listado: {start_url}")
-                # Aquí podemos usar un timeout un poco más grande para el listado
                 try:
                     page.goto(start_url, wait_until="domcontentloaded", timeout=30000)
                 except PlaywrightTimeoutError:
@@ -159,38 +161,41 @@ class BaseNewsScraper(ABC):
                 for idx, raw_url in enumerate(links, start=1):
                     url = self.normalize_url(raw_url)
 
-                    # Skip si ya lo tenemos
-                    if url in existing_urls:
-                        print(f"[{self.source_name}] ({idx}/{total}) Ya existía, skip: {url}")
+                    # evitar duplicados globales (días anteriores)
+                    if url in global_seen_urls:
+                        print(f"[{self.source_name}] ({idx}/{total}) Ya visto antes, skip: {url}")
                         continue
 
                     print(f"[{self.source_name}] ({idx}/{total}) Procesando: {url}")
 
+                    article_page = context.new_page()
                     try:
-                        # timeout corto por artículo
-                        page.goto(url, wait_until="domcontentloaded", timeout=15000)
+                        article_page.goto(url, wait_until="domcontentloaded", timeout=15000)
+                        article = self.extract_article_data(article_page, url)
                     except PlaywrightTimeoutError:
                         print(f"[{self.source_name}] Timeout al abrir {url}, lo salto.")
+                        article_page.close()
                         continue
                     except Exception as ex:
-                        print(f"[{self.source_name}] Error navegando a {url}: {ex}")
+                        print(f"[{self.source_name}] Error abriendo {url}: {ex}")
+                        article_page.close()
                         continue
-
-                    try:
-                        article = self.extract_article_data(page, url)
-                    except Exception as ex:
-                        print(f"[{self.source_name}] Error extrayendo datos de {url}: {ex}")
-                        continue
+                    finally:
+                        article_page.close()
 
                     if article is None:
                         print(f"[{self.source_name}] Sin datos válidos en {url}, lo salto.")
                         continue
 
-                    existing_urls.add(url)
+                    existing_urls_today.add(url)
+                    global_seen_urls.add(url)
                     collected.append(article)
 
             browser.close()
 
         self.save_articles(output_file, collected)
+        self.save_global_seen_urls(global_seen_urls)
+
         print(f"[{self.source_name}] Guardados {len(collected)} artículos nuevos en {output_file}")
         return collected
+

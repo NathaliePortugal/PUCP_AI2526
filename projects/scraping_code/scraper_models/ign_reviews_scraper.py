@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from playwright.sync_api import Page
-
+from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 from base.base_scraper import BaseNewsScraper
 from base.base_models import Article
 
@@ -30,29 +30,41 @@ class IgnReviewsScraper(BaseNewsScraper):
         return url
 
     def extract_article_links(self, page: Page):
-        """
-        Aquí obtienes los links a CADA review individual desde el listado.
+        CARD_LINK_SELECTOR = "a.item-body[data-cy='item-body']"
 
-        PASO QUE HARÁS A MANO:
-        - Abre https://www.ign.com/reviews/games
-        - F12 → Inspector
-        - Mira el HTML de una tarjeta de review
-        - Encuentra el <a> que lleva al review
-        - Construye un selector CSS que lo capture
-        """
-        # EJEMPLO / PLANTILLA:
-        CARD_LINK_SELECTOR = "a.item-body[data-cy='item-body']"  # Esto hay que buscar en cada pagina con F12 y ver el DOM
+        # Scroll progresivo
+        max_scrolls = 10
+        last_count = 0
 
-        cards = page.locator(CARD_LINK_SELECTOR)
-        count = cards.count()
-        print(f"[{self.source_name}] Encontradas {count} tarjetas de review en el listado.")
+        for i in range(max_scrolls):
+            # espera a que haya al menos algunos items
+            try:
+                page.wait_for_selector(CARD_LINK_SELECTOR, timeout=5000)
+            except PlaywrightTimeoutError:
+                break
+
+            anchors = page.locator(CARD_LINK_SELECTOR)
+            count = anchors.count()
+
+            if count == last_count:
+                # ya no aparecen nuevos items → paramos
+                break
+
+            last_count = count
+            # scroll hacia abajo
+            page.mouse.wheel(0, 2000)
+            page.wait_for_timeout(1500)  # 1.5s para que carguen nuevos
+
+        # al final, tomamos todos los links cargados
+        anchors = page.locator(CARD_LINK_SELECTOR)
+        count = anchors.count()
+        print(f"[{self.source_name}] Total de reviews visibles tras scroll: {count}")
 
         for i in range(count):
-            card = cards.nth(i) #Extrae el titulo
-            href = card.get_attribute("href")
-            if not href:
-                continue
-            yield href
+            href = anchors.nth(i).get_attribute("href")
+            if href:
+                yield href
+
 
     def extract_article_data(self, page: Page, url: str) -> Article | None:
         """

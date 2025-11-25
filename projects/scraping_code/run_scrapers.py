@@ -5,9 +5,10 @@ from scraper_models.kotaku_reviews_scraper import KotakuReviewsScraper
 # from .vandal_reviews_scraper import VandalReviewsScraper
 
 def main():
+    
     scrapers = [
         #IgnReviewsScraper(),
-        KotakuReviewsScraper(),
+        KotakuReviewsScraper(max_pages=50),
         # PcGamerReviewsScraper(),
         # VandalReviewsScraper(),
     ]
@@ -15,6 +16,7 @@ def main():
     for scraper in scrapers:
         print(f"=== Ejecutando {scraper.source_name} ===")
         scraper.run()
+
 
 if __name__ == "__main__":
     main()
