@@ -350,7 +350,7 @@ def main():
             })
             st.write("user_message:", user_message)
             st.write("procedimiento_para_prompt:", procedimiento_para_prompt)
-        
+
 
         # Llamar al modelo y mostrar respuesta
         with st.chat_message("assistant"):
@@ -364,9 +364,9 @@ def main():
                 user_prompt = construir_user_prompt(contexto, user_message, procedimiento_para_prompt)
                 user_prompt = recortar(user_prompt, 12000)
                 try:
-                    debug_resp = llamar_llm_groq(SYSTEM_PROMPT_CORTO, user_prompt)
-                    #debug_resp = llamar_llm_groq_debug(SYSTEM_PROMPT_CORTO, user_prompt)
-                    
+                    #respuesta = llamar_llm_groq(SYSTEM_PROMPT_CORTO, user_prompt)
+                    debug_resp = llamar_llm_groq_debug(SYSTEM_PROMPT_CORTO, user_prompt)
+
                     with st.expander("DEBUG (Groq response)", expanded=False):
                         st.write(debug_resp)
 
