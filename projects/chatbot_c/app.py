@@ -187,28 +187,35 @@ def es_followup(pregunta: str) -> bool:
     ]
     return any(d in p for d in disparadores)
 
+def recortar(texto: str, max_chars: int) -> str:
+    return str(texto or "")[:max_chars]
+
 
 def llamar_llm_groq(system_prompt: str, user_prompt: str) -> str:
-    if not GROQ_API_KEY:
-        return "Error: No se ha configurado GROQ_API_KEY en el archivo .env"
-
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json",
     }
+
     payload = {
         "model": "llama-3.1-8b-instant",
         "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
+            {"role": "system", "content": str(system_prompt or "")},
+            {"role": "user", "content": str(user_prompt or "")},
         ],
         "temperature": 0.1,
-        "max_completion_tokens": 600,
+        # usa max_tokens (más compatible). Si tu cuenta soporta max_completion_tokens, ok,
+        # pero max_tokens suele evitar 400 por parámetro.
+        "max_tokens": 600,
     }
 
     resp = requests.post(url, headers=headers, json=payload, timeout=60)
-    resp.raise_for_status()
+
+    if resp.status_code >= 400:
+        # 🔥 Aquí está la explicación real del 400
+        raise RuntimeError(f"Groq {resp.status_code} -> {resp.text}")
+
     data = resp.json()
     return data["choices"][0]["message"]["content"]
 
@@ -312,10 +319,14 @@ def main():
 
             with st.spinner("El asesor está analizando tu consulta..."):
                 # ✅ Incluir procedimiento para follow-up
+                SYSTEM_PROMPT_CORTO = recortar(SYSTEM_PROMPT, 4000)
+                contexto = recortar(contexto, 7000)
                 user_prompt = construir_user_prompt(contexto, user_message, procedimiento_para_prompt)
-
+                user_prompt = recortar(user_prompt, 12000)
                 try:
-                    respuesta = llamar_llm_groq(SYSTEM_PROMPT, user_prompt)
+                    st.write("DEBUG types:", type(SYSTEM_PROMPT), type(contexto), type(user_prompt))
+
+                    respuesta = llamar_llm_groq(SYSTEM_PROMPT_CORTO, user_prompt)
                 except Exception as ex:
                     respuesta = f"Ocurrió un error al llamar al modelo: {ex}"
 
