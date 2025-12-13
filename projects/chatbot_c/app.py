@@ -242,6 +242,30 @@ def detectar_solicitud_humano(texto: str) -> bool:
     ]
     return any(d in texto for d in disparadores)
 
+def llamar_llm_groq_debug(system_prompt: str, user_prompt: str):
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": "llama-3.1-8b-instant",
+        "messages": [
+            {"role": "system", "content": str(system_prompt or "")},
+            {"role": "user", "content": str(user_prompt or "")},
+        ],
+        "temperature": 0.1,
+        "max_tokens": 600,
+    }
+
+    resp = requests.post(url, headers=headers, json=payload, timeout=60)
+
+    # Devuelve TODO para inspección
+    return {
+        "status_code": resp.status_code,
+        "text": resp.text[:2000],   # recortado
+    }
+
 def main():
     st.set_page_config(page_title="Chatbot Estética", page_icon="⚕️")
     st.title("⚕️ Chatbot Centro de Estética")
@@ -312,6 +336,19 @@ def main():
         procedimiento_para_prompt = st.session_state.get("ultimo_procedimiento")
         user_prompt = construir_user_prompt(contexto, user_message, procedimiento_para_prompt)
 
+        with st.expander("DEBUG (prompt sizes / types)", expanded=False):
+            st.write({
+                "SYSTEM_PROMPT_type": type(SYSTEM_PROMPT).__name__,
+                "contexto_type": type(contexto).__name__,
+                "user_prompt_type": type(user_prompt).__name__,
+                "SYSTEM_PROMPT_len": len(SYSTEM_PROMPT or ""),
+                "contexto_len": len(contexto or ""),
+                "user_prompt_len": len(user_prompt or ""),
+            })
+            st.write("user_message:", user_message)
+            st.write("procedimiento_para_prompt:", procedimiento_para_prompt)
+
+
         # Llamar al modelo y mostrar respuesta
         with st.chat_message("assistant"):
             thinking_placeholder = st.empty()
@@ -324,9 +361,18 @@ def main():
                 user_prompt = construir_user_prompt(contexto, user_message, procedimiento_para_prompt)
                 user_prompt = recortar(user_prompt, 12000)
                 try:
-                    st.write("DEBUG types:", type(SYSTEM_PROMPT), type(contexto), type(user_prompt))
+                    #respuesta = llamar_llm_groq(SYSTEM_PROMPT_CORTO, user_prompt)
+                    debug_resp = llamar_llm_groq_debug(SYSTEM_PROMPT_CORTO, user_prompt)
 
-                    respuesta = llamar_llm_groq(SYSTEM_PROMPT_CORTO, user_prompt)
+                    with st.expander("DEBUG (Groq response)", expanded=False):
+                        st.write(debug_resp)
+
+                    if debug_resp["status_code"] != 200:
+                        respuesta = f"Error Groq: {debug_resp['status_code']} -> {debug_resp['text']}"
+                    else:
+                        # Si fue 200, parseamos JSON
+                        data = requests.models.complexjson.loads(debug_resp["text"])
+                        respuesta = data["choices"][0]["message"]["content"]
                 except Exception as ex:
                     respuesta = f"Ocurrió un error al llamar al modelo: {ex}"
 
