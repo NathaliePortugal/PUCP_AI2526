@@ -15,13 +15,23 @@ WHATSAPP_NUMBER = os.getenv("WHATSAPP_NUMBER")
 
 BASE_DIR = Path(__file__).resolve().parent
 EXCEL_PATH = BASE_DIR / "data" / "procedimientos.xlsx"
-SYSTEM_PROMPT_PATH = "systemprompt.txt"
+#SYSTEM_PROMPT_PATH = "systemprompt.txt"
+SYSTEM_PROMPT_PATH = BASE_DIR / "systemprompt.txt"
+
+
 
 if not EXCEL_PATH.exists():
     st.error(f"No se encuentra el Excel en: {EXCEL_PATH}")
     st.stop()
 
 # ---------- Utilidades ----------
+def cargar_system_prompt():
+    if not SYSTEM_PROMPT_PATH.exists():
+        return (
+            f"Error: no se encontró el archivo systemprompt.txt en "
+            f"{SYSTEM_PROMPT_PATH}"
+        )
+    return SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
 
 def normalizar(texto: str) -> str:
     """Pasa a minúsculas y quita acentos para comparar mejor."""
@@ -44,7 +54,6 @@ def cargar_system_prompt(path: str = SYSTEM_PROMPT_PATH) -> str:
 
 
 SYSTEM_PROMPT = cargar_system_prompt()
-
 
 @st.cache_data
 def cargar_datos():
@@ -195,9 +204,10 @@ def llamar_llm_groq(system_prompt: str, user_prompt: str) -> str:
             {"role": "user", "content": user_prompt},
         ],
         "temperature": 0.1,
+        "max_completion_tokens": 600,
     }
 
-    resp = requests.post(url, headers=headers, json=payload, timeout=40)
+    resp = requests.post(url, headers=headers, json=payload, timeout=60)
     resp.raise_for_status()
     data = resp.json()
     return data["choices"][0]["message"]["content"]
