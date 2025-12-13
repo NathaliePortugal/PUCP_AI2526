@@ -150,31 +150,34 @@ def construir_user_prompt(contexto: str, pregunta: str, procedimiento_actual: st
     extra = ""
     if procedimiento_actual:
         extra = f"""
-    Esta pregunta es un SEGUIMIENTO sobre el procedimiento llamado: "{procedimiento_actual}".
+Esta pregunta es un SEGUIMIENTO sobre el procedimiento llamado: "{procedimiento_actual}".
 
-    - Interpreta que el cliente sigue hablando de ese procedimiento,
-    salvo que explícitamente mencione otro.
-    """
+- Interpreta que el cliente sigue hablando de ese procedimiento,
+  salvo que explícitamente mencione otro.
+"""
 
-        return f"""
-    A continuación tienes información de un archivo Excel del centro de estética.
-    Usa EXCLUSIVAMENTE esta información para responder.
+    prompt = f"""
+A continuación tienes información de un archivo Excel del centro de estética.
+Usa EXCLUSIVAMENTE esta información para responder.
 
-    Contexto del Excel:
-    -------------------
-    {contexto}
+Contexto del Excel:
+-------------------
+{contexto}
 
-    {extra}
+{extra}
 
-    Pregunta del cliente:
-    ---------------------
-    {pregunta}
+Pregunta del cliente:
+---------------------
+{pregunta}
 
-    Instrucciones:
-    - Si la respuesta está en el contexto, respóndela de forma clara.
-    - Si no ves la información exacta en el contexto, dilo explícitamente.
-    - Si no puedes responder con certeza, ofrece derivar al cliente a un asesor humano por WhatsApp.
-    """
+Instrucciones:
+- Si la respuesta está en el contexto, respóndela de forma clara.
+- Si no ves la información exacta en el contexto, dilo explícitamente.
+- Si no puedes responder con certeza, ofrece derivar al cliente a un asesor humano por WhatsApp.
+"""
+
+    return prompt
+
 
 def es_followup(pregunta: str) -> bool:
     p = normalizar(pregunta)
