@@ -6,16 +6,20 @@ import urllib.parse
 import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
-
+from pathlib import Path
 # Cargar variables de entorno (.env)
 load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 WHATSAPP_NUMBER = os.getenv("WHATSAPP_NUMBER")
 
-EXCEL_PATH = os.path.join("data", "procedimientos.xlsx")
+BASE_DIR = Path(__file__).resolve().parent
+EXCEL_PATH = BASE_DIR / "data" / "procedimientos.xlsx"
 SYSTEM_PROMPT_PATH = "systemprompt.txt"
 
+if not EXCEL_PATH.exists():
+    st.error(f"No se encuentra el Excel en: {EXCEL_PATH}")
+    st.stop()
 
 # ---------- Utilidades ----------
 
