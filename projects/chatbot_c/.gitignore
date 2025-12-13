@@ -1,0 +1,44 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# ---- Entornos virtuales ----
+.venv/
+venv/
+env/
+ENV/
+pip-wheel-metadata/
+
+# ---- VSCode / IDEs ----
+.vscode/
+.idea/
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Logs / temp ----
+*.log
+*.tmp
+
+# ---- Secrets ----
+.env
+*.env
+
+# Streamlit secrets (si alguna vez creas este archivo localmente)
+.streamlit/secrets.toml
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+
+# ---- Build / cache ----
+.pytest_cache/
+.mypy_cache/
+ruff_cache/
+.cache/
+dist/
+build/
+*.egg-info/
