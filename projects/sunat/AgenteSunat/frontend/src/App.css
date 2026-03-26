@@ -1,0 +1,468 @@
+/* App.css — Estilos del chatbot SUNAT */
+
+/* ============================================================
+   LAYOUT PRINCIPAL
+   El chatbot ocupa toda la pantalla y se divide en 3 partes:
+   1. Header (fijo arriba)
+   2. Área de mensajes (crece para llenar el espacio)
+   3. Barra de input (fija abajo)
+   ============================================================ */
+
+.chat-wrapper {
+  width: 100%;
+  max-width: 860px;        /* ancho máximo para que no se estire demasiado en pantallas grandes */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;           /* ocupa toda la altura de la pantalla */
+  background: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.12);
+}
+
+/* ============================================================
+   HEADER — barra azul superior estilo SUNAT
+   ============================================================ */
+
+.chat-header {
+  background: var(--sunat-azul);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;          /* el header no se encoge aunque haya poco espacio */
+  border-bottom: 3px solid var(--sunat-naranja);  /* línea naranja característica de SUNAT */
+}
+
+/* Círculo con las iniciales del bot */
+.chat-header-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--sunat-naranja);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.chat-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header-title {
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.chat-header-subtitle {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* Indicador verde de "en línea" */
+.chat-header-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4CAF50;
+  animation: pulsar 2s infinite;  /* pulsa suavemente para indicar actividad */
+}
+
+@keyframes pulsar {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ============================================================
+   ÁREA DE MENSAJES — donde aparecen las burbujas
+   ============================================================ */
+
+.chat-messages {
+  flex: 1;                 /* crece para ocupar todo el espacio disponible */
+  overflow-y: auto;        /* scroll vertical cuando hay muchos mensajes */
+  padding: 20px 16px;
+  background: var(--fondo-chat);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Hace que el scroll siempre esté al final (mensajes nuevos abajo) */
+.chat-messages-end {
+  height: 1px;
+}
+
+/* ============================================================
+   PANTALLA DE BIENVENIDA — se muestra antes del primer mensaje
+   ============================================================ */
+
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 30px 20px;
+}
+
+.welcome-logo {
+  width: 72px;
+  height: 40px;
+  background: var(--sunat-azul);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: white;
+}
+
+.welcome-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--sunat-azul);
+  text-align: center;
+}
+
+.welcome-subtitle {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  max-width: 380px;
+  line-height: 1.6;
+}
+
+/* ============================================================
+   BOTONES DE OPCIONES RÁPIDAS
+   Grilla de 2 columnas con las consultas más comunes
+   ============================================================ */
+
+.quick-options-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  align-self: flex-start;
+  width: 100%;
+}
+
+.quick-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;   /* 2 columnas iguales */
+  gap: 10px;
+  width: 100%;
+}
+
+.quick-option-btn {
+  background: white;
+  border: 1.5px solid var(--borde);
+  border-radius: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  transition: all 0.2s ease;  /* transición suave al hacer hover */
+  font-family: var(--fuente);
+}
+
+.quick-option-btn:hover {
+  border-color: var(--sunat-azul);
+  background: #EEF3FB;           /* fondo azul muy suave al pasar el mouse */
+  transform: translateY(-1px);   /* pequeño efecto de elevación */
+  box-shadow: 0 3px 10px var(--sombra);
+}
+
+.quick-option-btn:active {
+  transform: translateY(0);      /* vuelve a posición al hacer click */
+}
+
+.quick-option-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sunat-azul);
+  line-height: 1.3;
+}
+
+/* ============================================================
+   BURBUJAS DE MENSAJES
+   ============================================================ */
+
+/* Contenedor de cada mensaje — controla si va a izquierda o derecha */
+.message-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;   /* alinear avatar con la parte baja de la burbuja */
+}
+
+/* Mensajes del bot: avatar a la izquierda, burbuja a la derecha del avatar */
+.message-row.bot {
+  flex-direction: row;
+}
+
+/* Mensajes del usuario: sin avatar, burbuja a la derecha */
+.message-row.user {
+  flex-direction: row-reverse;
+}
+
+/* Avatar circular del bot */
+.message-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--sunat-azul);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+/* Burbuja de texto */
+.message-bubble {
+  max-width: 72%;           /* no ocupar toda la pantalla */
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.55;
+  word-break: break-word;   /* rompe palabras muy largas para no romper el layout */
+  white-space: pre-wrap;    /* respeta los saltos de línea que viene del backend */
+}
+
+/* Burbuja del BOT: blanca con sombra suave */
+.message-row.bot .message-bubble {
+  background: var(--burbuja-bot);
+  color: var(--texto-bot);
+  border-bottom-left-radius: 4px;   /* esquina cerca del avatar más redondeada */
+  box-shadow: 0 1px 4px var(--sombra);
+}
+
+/* Burbuja del USUARIO: azul SUNAT */
+.message-row.user .message-bubble {
+  background: var(--burbuja-usuario);
+  color: var(--texto-usuario);
+  border-bottom-right-radius: 4px;
+}
+
+/* ============================================================
+   INDICADOR DE CARGA (tres puntos animados)
+   Se muestra mientras el backend procesa la respuesta
+   ============================================================ */
+
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 12px 14px;
+  background: white;
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 4px var(--sombra);
+  width: fit-content;
+}
+
+.typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sunat-azul);
+  animation: typing 1.2s infinite ease-in-out;
+}
+
+/* Los 3 puntos se animan en cascada con delay */
+.typing-dot:nth-child(1) { animation-delay: 0s; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%           { transform: translateY(-6px); }
+}
+
+/* ============================================================
+   PANEL DE CHIPS COLAPSABLE
+   Aparece encima del input al hacer click en " Temas".
+   Solo visible cuando ya hay mensajes en el chat.
+   ============================================================ */
+
+.chips-panel {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.25s ease;
+}
+
+.chips-panel--open {
+  max-height: 120px;   /* suficiente para 2 filas de chips */
+}
+
+/* Fila horizontal scrollable de chips */
+.chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 8px 0 10px 0;
+  overflow-x: auto;
+}
+
+/* Chip individual — pequeño, compacto, estilo pill */
+.chip-btn {
+  flex-shrink: 0;
+  background: white;
+  border: 1.5px solid var(--borde);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: var(--fuente);
+  color: var(--sunat-azul);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.chip-btn:hover {
+  background: #EEF3FB;
+  border-color: var(--sunat-azul);
+}
+
+/* Botón  para abrir/cerrar el panel de chips */
+.topics-btn {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 19px;
+  border: 1.5px solid var(--borde);
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--fuente);
+  color: var(--sunat-azul);
+  flex-shrink: 0;
+  transition: all 0.2s;
+  align-self: flex-end;
+  white-space: nowrap;
+}
+
+.topics-btn:hover {
+  border-color: var(--sunat-azul);
+  background: #EEF3FB;
+}
+
+/* Cuando está activo (panel abierto), resaltar el botón */
+.topics-btn--active {
+  background: var(--sunat-azul);
+  border-color: var(--sunat-azul);
+  color: white;
+}
+
+/* ============================================================
+   BARRA DE INPUT — fija en la parte inferior
+   ============================================================ */
+
+.chat-input-area {
+  flex-shrink: 0;
+  background: white;
+  border-top: 1px solid var(--borde);
+  padding: 12px 16px;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.chat-input {
+  flex: 1;
+  border: 1.5px solid var(--borde);
+  border-radius: 22px;     /* bordes bien redondeados estilo chat moderno */
+  padding: 10px 16px;
+  font-size: 14px;
+  font-family: var(--fuente);
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+  max-height: 110px;       /* limita el crecimiento del textarea */
+  overflow-y: auto;
+  transition: border-color 0.2s;
+}
+
+.chat-input:focus {
+  border-color: var(--sunat-azul);  /* borde azul al escribir */
+}
+
+.chat-input::placeholder {
+  color: #AAAAAA;
+}
+
+/* Botón de enviar */
+.send-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--sunat-azul);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  color: white;
+  font-size: 16px;
+}
+
+.send-btn:hover:not(:disabled) {
+  background: var(--sunat-azul-medio);
+  transform: scale(1.08);
+}
+
+.send-btn:disabled {
+  background: #CCC;
+  cursor: not-allowed;
+}
+
+/* Texto pequeño debajo del input */
+.chat-input-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #AAA;
+  margin-top: 6px;
+}
+
+
+@media (max-width: 600px) {
+  .quick-options-grid {
+    grid-template-columns: 1fr;   /* 1 columna en celulares */
+  }
+
+  .message-bubble {
+    max-width: 85%;   /* más ancho en celulares */
+  }
+
+  .chat-wrapper {
+    max-width: 100%;
+    box-shadow: none;
+  }
+}
