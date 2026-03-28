@@ -21,14 +21,19 @@ class IntentService:
         model_name: str = "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
         candidate_labels: Optional[List[str]] = None,
         multi_label: bool = False,
-        local_files_only: bool = True,
+        local_files_only: bool = False,
     ) -> None:
         self.model_name = model_name
         self.candidate_labels = candidate_labels or TOPIC_LABELS
         self.multi_label = multi_label
         self.local_files_only = local_files_only
 
-        os.environ["HF_HUB_OFFLINE"] = "1"
+        # Solo activar modo offline si se pidió explícitamente usar caché local.
+        # En Streamlit Cloud el modelo se descarga de HuggingFace la primera vez.
+        if local_files_only:
+            os.environ["HF_HUB_OFFLINE"] = "1"
+        else:
+            os.environ.pop("HF_HUB_OFFLINE", None)
 
         self._classifier = pipeline(
             task="zero-shot-classification",
