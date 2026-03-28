@@ -102,6 +102,9 @@ class ToolExecutor:
         if tool_name == "handle_fines_guidance":
             return self._handle_fines_guidance(message, state)
 
+        if tool_name == "handle_schedule_guidance":
+            return self._handle_schedule_guidance(message, state)
+
         return f"Tool '{tool_name}' no reconocida."
 
     def _build_formalization_checklist(
@@ -435,6 +438,30 @@ class ToolExecutor:
             "  • Consejos para evitar sanciones en el futuro.\n\n"
             "¿Sobre qué tema específico quieres consultar? "
             "Escribe tu pregunta y buscaré en los documentos SUNAT."
+        )
+
+    def _handle_schedule_guidance(
+        self,
+        message: str,
+        state: ConversationState,
+    ) -> str:
+        """Orientación inicial sobre el cronograma de obligaciones. Libera el control al RAG."""
+        state.menu_context = "cronograma_obligaciones"
+        state.active_tool = None
+
+        return (
+            "El cronograma de vencimientos de SUNAT indica las fechas límite para "
+            "presentar declaraciones y pagar impuestos cada mes, según el último dígito "
+            "de tu RUC.\n\n"
+            "Puedo ayudarte con:\n"
+            "  • Cómo leer el cronograma y qué columna corresponde a tu RUC.\n"
+            "  • Qué pasa si declaras después de la fecha de vencimiento.\n"
+            "  • Vencimientos del PDT 621 (IGV/Renta mensual).\n"
+            "  • Plazo para la declaración jurada anual.\n\n"
+            "Para las fechas exactas del año en curso, el cronograma oficial está en "
+            "sunat.gob.pe → Orientación Tributaria → Cronograma de Obligaciones.\n\n"
+            "¿Quieres que te explique cómo funciona el cronograma o tienes alguna "
+            "pregunta específica sobre fechas y plazos?"
         )
 
     def _normalize_answer(self, key: str, value: str) -> str:

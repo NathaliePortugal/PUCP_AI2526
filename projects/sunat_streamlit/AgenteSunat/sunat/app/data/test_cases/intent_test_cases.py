@@ -138,4 +138,28 @@ INTENT_TEST_CASES = [
         "text": "El cronograma de SUNAT según el RUC",
         "expected_intent": "cronograma_obligaciones",
     },
+
+    # -----------------------------------------------------------------------
+    # declaraciones_impuestos
+    # -----------------------------------------------------------------------
+    {
+        "text": "Cómo presento mi declaración mensual por internet",
+        "expected_intent": "declaraciones_impuestos",
+    },
+    {
+        "text": "Qué necesito para llenar el PDT 621",
+        "expected_intent": "declaraciones_impuestos",
+    },
+    {
+        "text": "Tengo que declarar el IGV de este mes, cómo lo hago",
+        "expected_intent": "declaraciones_impuestos",
+    },
+    {
+        "text": "Dónde presento mi declaración jurada de renta anual",
+        "expected_intent": "declaraciones_impuestos",
+    },
+    {
+        "text": "Cómo uso el formulario virtual 621",
+        "expected_intent": "declaraciones_impuestos",
+    },
 ]

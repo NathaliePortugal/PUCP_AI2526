@@ -1,5 +1,6 @@
 streamlit
 pandas
+plotly
 sentence-transformers
 faiss-cpu
 pymupdf

@@ -41,6 +41,7 @@ TOOL_INTENT_TO_NAME: Dict[str, str] = {
     "regimenes_tributarios": "compare_tax_regimes",
     "formalizacion_negocio": "build_formalization_checklist",
     "multas_y_sanciones": "handle_fines_guidance",
+    "cronograma_obligaciones": "handle_schedule_guidance",
 }
 
 LOW_CONFIDENCE_THRESHOLD = 0.35
