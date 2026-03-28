@@ -2,6 +2,8 @@ streamlit
 pandas
 plotly
 sentence-transformers
+transformers
+torch
 faiss-cpu
 pymupdf
 pymupdf4llm
