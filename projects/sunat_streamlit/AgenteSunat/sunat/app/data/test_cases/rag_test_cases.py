@@ -54,7 +54,6 @@ RAG_TEST_CASES = [
             "Regímenes Tributarios _ Emprender.pdf",
             "Regímenes Tributarios _ EmprenderCompare.pdf",
             "cartilla_formalizacion_2020_PORTAL.pdf",
-            # El número "96,000" puede estar en capítulos del libro de cultura
             "Libro-Cultura_Tributaria_y_Aduanera_final_0.pdf",
         ],
     },

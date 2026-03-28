@@ -11,15 +11,14 @@ from app.services.tool_executor import ToolExecutor
 
 class ChatOrchestrator:
     """
-    Orquesta el procesamiento completo de un turno conversacional.
+    Coordina el procesamiento de cada turno de conversación.
 
-    Flujo:
-    1. obtener estado
-    2. clasificar intención
-    3. decidir ruta
-    4. actualizar estado
-    5. ejecutar acción
-    6. persistir estado
+    Flujo por mensaje:
+    1. Cargar estado de sesión
+    2. Clasificar intención
+    3. Decidir ruta (tool / RAG / clarificación)
+    4. Actualizar estado
+    5. Ejecutar acción y devolver respuesta
     """
 
     def __init__(
@@ -38,28 +37,14 @@ class ChatOrchestrator:
 
     def handle_message(self, session_id: str, message: str) -> dict:
         state = self.state_store.get(session_id)
-
         intent_result = self.intent_classifier.classify_topic(message)
-
         decision = self.router.decide(
             message=message,
             intent_result=intent_result,
             state=state,
         )
-
-        self._update_state_before_execution(
-            state=state,
-            intent_result=intent_result,
-            decision=decision,
-        )
-
-        response_text = self._execute_decision(
-            message=message,
-            state=state,
-            intent_result=intent_result,
-            decision=decision,
-        )
-
+        self._update_state_before_execution(state, intent_result, decision)
+        response_text = self._execute_decision(message, state, intent_result, decision)
         self.state_store.save(state)
 
         return {

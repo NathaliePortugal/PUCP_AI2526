@@ -1,20 +1,14 @@
 # app/services/tool_executor.py
 """
-Ejecutor de tools conversacionales (flujos guiados multi-turno).
+Flujos guiados multi-turno para el chatbot SUNAT.
 
-Una "tool" en este sistema es un flujo de preguntas secuenciales donde el chatbot
-guía al usuario paso a paso para obtener información específica y luego generar
-una respuesta personalizada (checklist, recomendación de régimen, etc.).
-
-¿Por qué flujos multi-turno?
-Porque algunas preguntas tributarias no se responden con un solo mensaje.
-Para recomendar el régimen correcto, necesitas saber cuánto vende el negocio,
-si emite facturas, cuántos trabajadores tiene, etc. Es mejor preguntar de a poco.
+Cada "tool" hace preguntas secuenciales al usuario, guarda las respuestas en
+state.entities y genera un resultado personalizado al completarse.
 
 Tools disponibles:
-1. build_formalization_checklist → checklist de formalización personalizado
-2. compare_tax_regimes          → recomendación de régimen según perfil del negocio
-3. handle_fines_guidance        → orientación básica sobre multas (redirige a RAG)
+- build_formalization_checklist : checklist de formalización según perfil del negocio
+- compare_tax_regimes           : recomendación de régimen tributario
+- handle_fines_guidance         : orientación inicial sobre multas y sanciones
 """
 
 from __future__ import annotations
@@ -28,15 +22,10 @@ class ToolExecutor:
     """
     Ejecuta tools especializadas según el nombre resuelto por el ConversationRouter.
 
-    Cada tool tiene:
-    - Una lista de pasos (preguntas secuenciales).
-    - Lógica para guardar respuestas en state.entities.
-    - Un método de "resumen final" que genera la respuesta cuando se completan todos los pasos.
+    Cada tool define sus pasos en una lista de dicts {key, question}.
+    Las respuestas se acumulan en state.entities hasta completar el flujo.
     """
 
-    # ------------------------------------------------------------------
-    # Pasos del flujo de FORMALIZACIÓN
-    # ------------------------------------------------------------------
     FORMALIZATION_STEPS = [
         {
             "key": "has_ruc",
@@ -63,9 +52,6 @@ class ToolExecutor:
         },
     ]
 
-    # ------------------------------------------------------------------
-    # Pasos del flujo de REGÍMENES TRIBUTARIOS
-    # ------------------------------------------------------------------
     TAX_REGIME_STEPS = [
         {
             "key": "monthly_sales",
@@ -101,34 +87,12 @@ class ToolExecutor:
         },
     ]
 
-    def __init__(self, rag_service=None) -> None:
-        """
-        Args:
-            rag_service: instancia de RagService para buscar información documental
-                         al finalizar algunos flujos. Opcional: si no se pasa,
-                         el flujo funciona igual pero sin recuperación documental.
-        """
-        # Guardamos referencia al RagService para usarlo al final de los flujos
-        # Esto es "inyección de dependencias": tool_executor no crea el rag_service,
-        # lo recibe desde afuera (desde main.py), lo que hace el código más testeable.
+    def __init__(self, rag_service=None, llm_service=None) -> None:
         self.rag_service = rag_service
-
-    # ------------------------------------------------------------------
-    # Punto de entrada principal
-    # ------------------------------------------------------------------
+        self.llm_service = llm_service
 
     def execute(self, tool_name: str, message: str, state: ConversationState) -> str:
-        """
-        Despacha la ejecución a la tool correspondiente.
-
-        Args:
-            tool_name: nombre de la tool a ejecutar (viene del ConversationRouter).
-            message: mensaje actual del usuario.
-            state: estado conversacional de la sesión.
-
-        Returns:
-            Texto de respuesta para el usuario.
-        """
+        """Despacha a la tool correspondiente según el nombre recibido del router."""
         if tool_name == "build_formalization_checklist":
             return self._build_formalization_checklist(message, state)
 
@@ -138,15 +102,7 @@ class ToolExecutor:
         if tool_name == "handle_fines_guidance":
             return self._handle_fines_guidance(message, state)
 
-        # Fallback si llega un nombre de tool desconocido
-        return (
-            f"La tool '{tool_name}' aún no tiene implementación. "
-            "Pero el routing funcionó correctamente."
-        )
-
-    # ------------------------------------------------------------------
-    # TOOL 1: Formalización del negocio
-    # ------------------------------------------------------------------
+        return f"Tool '{tool_name}' no reconocida."
 
     def _build_formalization_checklist(
         self,
@@ -154,49 +110,30 @@ class ToolExecutor:
         state: ConversationState,
     ) -> str:
         """
-        Flujo guiado multi-turno para formalización del negocio.
-
-        Hace 5 preguntas secuenciales y genera un checklist personalizado al final.
-        Guarda el progreso en state.entities["formalization_flow"].
-
-        Estructura de state.entities["formalization_flow"]:
-        {
-            "started": True,
-            "step": 3,                  # siguiente pregunta a hacer (1-indexed)
-            "has_ruc": "no",
-            "person_type": "natural",
-            "economic_activity": "bodega",
-            "voucher_type": "boletas",
-            "has_employees": "sí",
-        }
+        Flujo de 5 preguntas para formalización. Progreso guardado en
+        state.entities["formalization_flow"] con las respuestas y el step actual.
         """
         state.menu_context = "formalizacion_negocio"
 
-        # Obtiene o inicializa el dict de progreso del flujo
         flow_data = state.entities.setdefault("formalization_flow", {})
         current_step = flow_data.get("step", 0)
 
-        # --- Caso 1: primer ingreso al flujo ---
         if current_step == 0 and "started" not in flow_data:
             flow_data["started"] = True
             flow_data["step"] = 1
-
             return (
                 "Perfecto. Iniciemos el flujo de formalización del negocio.\n\n"
-                "Te haré unas preguntas cortas para construir un checklist educativo "
+                "Te haré unas preguntas cortas para construir un checklist "
                 "personalizado para tu situación.\n\n"
                 f"Pregunta 1 de {len(self.FORMALIZATION_STEPS)}: "
                 f"{self.FORMALIZATION_STEPS[0]['question']}"
             )
 
-        # --- Caso 2: guardar respuesta del paso anterior ---
         previous_index = current_step - 1
         if 0 <= previous_index < len(self.FORMALIZATION_STEPS):
             previous_key = self.FORMALIZATION_STEPS[previous_index]["key"]
-            normalized_value = self._normalize_answer(previous_key, message)
-            flow_data[previous_key] = normalized_value
+            flow_data[previous_key] = self._normalize_answer(previous_key, message)
 
-        # --- Caso 3: si aún faltan preguntas, avanzar al siguiente paso ---
         if current_step < len(self.FORMALIZATION_STEPS):
             next_question = self.FORMALIZATION_STEPS[current_step]["question"]
             flow_data["step"] = current_step + 1
@@ -205,13 +142,9 @@ class ToolExecutor:
                 f"{next_question}"
             )
 
-        # --- Caso 4: flujo completado, generar resumen ---
+
         summary = self._build_formalization_summary(flow_data)
 
-        # Limpiar tool activa para que el router no quede "atrapado" en este flujo
-        state.active_tool = None
-
-        # Guardar resultado final en entities por si otra parte del sistema lo necesita
         state.entities["formalization_result"] = {
             "has_ruc": flow_data.get("has_ruc"),
             "person_type": flow_data.get("person_type"),
@@ -220,15 +153,18 @@ class ToolExecutor:
             "has_employees": flow_data.get("has_employees"),
         }
 
+        state.entities.pop("formalization_flow", None)
+        state.active_tool = None
+
         return summary
 
     def _build_formalization_summary(self, flow_data: Dict[str, Any]) -> str:
         """
-        Genera el checklist educativo personalizado basado en las respuestas del flujo.
+        Genera el checklist de formalización personalizado.
 
-        Personaliza el checklist según:
-        - Si ya tiene RUC o no.
-        - Si tendrá empleados o no.
+        Si el LLM está disponible, genera una respuesta conversacional y cálida
+        basada en el perfil del usuario. Si no, usa el template hardcodeado como
+        fallback.
         """
         has_ruc = flow_data.get("has_ruc", "no especificado")
         person_type = flow_data.get("person_type", "no especificado")
@@ -236,7 +172,37 @@ class ToolExecutor:
         voucher_type = flow_data.get("voucher_type", "no especificado")
         has_employees = flow_data.get("has_employees", "no especificado")
 
-        # Checklist base que aplica a todos
+        perfil = (
+            f"- ¿Tiene RUC?: {has_ruc}\n"
+            f"- Tipo de persona: {person_type}\n"
+            f"- Actividad económica: {economic_activity}\n"
+            f"- Comprobantes a emitir: {voucher_type}\n"
+            f"- Tendrá trabajadores: {has_employees}"
+        )
+
+        # --- Intentar enriquecer con LLM ---
+        if self.llm_service and self.llm_service.is_available():
+            prompt = (
+                "Un usuario acaba de completar el flujo de formalización de negocio "
+                "en el asistente virtual de SUNAT Perú. Este es su perfil:\n\n"
+                f"{perfil}\n\n"
+                "Genera un checklist personalizado de pasos para formalizar su negocio "
+                "según ese perfil. Usa lenguaje simple y amable. "
+                "Si no tiene RUC, pon ese paso como prioritario al inicio. "
+                "Si tendrá trabajadores, incluye las obligaciones laborales (ESSALUD, AFP/ONP, planilla). "
+                "Al final, ofrece continuar ayudando con otras consultas como regímenes tributarios."
+            )
+            try:
+                generated = self.llm_service.generate(
+                    query=prompt,
+                    context_chunks=[perfil],
+                )
+                if generated:
+                    return generated
+            except Exception:
+                pass  # fallback al template
+
+        # Fallback si el LLM no está disponible
         checklist = [
             "1. Definir claramente el tipo de contribuyente (persona natural o jurídica).",
             "2. Confirmar la actividad económica principal y su código CIIU.",
@@ -246,11 +212,9 @@ class ToolExecutor:
             "6. Evaluar el régimen tributario que mejor se adapta a tu perfil.",
         ]
 
-        # Personalización: si no tiene RUC, agregar el paso de inscripción
         if str(has_ruc).lower() == "no":
             checklist.insert(2, "PRIORITARIO: Inscribirte al RUC en SUNAT.")
 
-        # Personalización: si tendrá empleados, agregar obligaciones laborales
         if str(has_employees).lower() == "sí":
             checklist.append(
                 "7. Revisar obligaciones laborales: ESSALUD (9%), "
@@ -270,13 +234,9 @@ class ToolExecutor:
             "Checklist educativo personalizado:\n"
             f"{checklist_text}\n\n"
             "¿Qué quieres hacer ahora?\n"
-            "  • Escribir 'regímenes' para comparar los regímenes tributarios.\n"
-            "  • Hacer cualquier otra consulta sobre SUNAT."
+            "  • Escribe 'regímenes' para comparar los regímenes tributarios.\n"
+            "  • Haz cualquier otra consulta sobre SUNAT."
         )
-
-    # ------------------------------------------------------------------
-    # TOOL 2: Comparación de regímenes tributarios
-    # ------------------------------------------------------------------
 
     def _compare_tax_regimes(
         self,
@@ -284,26 +244,14 @@ class ToolExecutor:
         state: ConversationState,
     ) -> str:
         """
-        Flujo guiado multi-turno para recomendar el régimen tributario ideal.
-
-        Hace 3 preguntas sobre el negocio y luego recomienda el régimen más adecuado.
-        Opcionalmente busca detalles en RAG si está disponible.
-
-        Estructura de state.entities["tax_regime_flow"]:
-        {
-            "started": True,
-            "step": 2,
-            "monthly_sales": "b",          # categoría de ventas mensuales
-            "needs_invoices": "sí",
-            "worker_count": "a",
-        }
+        Flujo de 3 preguntas para recomendar el régimen tributario ideal.
+        Progreso en state.entities["tax_regime_flow"].
         """
         state.menu_context = "regimenes_tributarios"
 
         flow_data = state.entities.setdefault("tax_regime_flow", {})
         current_step = flow_data.get("step", 0)
 
-        # --- Caso 1: primer ingreso al flujo ---
         if current_step == 0 and "started" not in flow_data:
             flow_data["started"] = True
             flow_data["step"] = 1
@@ -316,14 +264,14 @@ class ToolExecutor:
                 f"{self.TAX_REGIME_STEPS[0]['question']}"
             )
 
-        # --- Caso 2: guardar respuesta del paso anterior ---
+
         previous_index = current_step - 1
         if 0 <= previous_index < len(self.TAX_REGIME_STEPS):
             previous_key = self.TAX_REGIME_STEPS[previous_index]["key"]
             normalized_value = self._normalize_answer(previous_key, message)
             flow_data[previous_key] = normalized_value
 
-        # --- Caso 3: si aún faltan preguntas, avanzar ---
+
         if current_step < len(self.TAX_REGIME_STEPS):
             next_question = self.TAX_REGIME_STEPS[current_step]["question"]
             flow_data["step"] = current_step + 1
@@ -332,11 +280,8 @@ class ToolExecutor:
                 f"{next_question}"
             )
 
-        # --- Caso 4: flujo completado, generar recomendación ---
-        recommendation = self._build_regime_recommendation(flow_data, state)
 
-        # Limpiar tool activa
-        state.active_tool = None
+        recommendation = self._build_regime_recommendation(flow_data, state)
 
         # Guardar perfil para uso posterior
         state.entities["tax_regime_result"] = {
@@ -344,6 +289,11 @@ class ToolExecutor:
             "needs_invoices": flow_data.get("needs_invoices"),
             "worker_count": flow_data.get("worker_count"),
         }
+
+        # Limpiar el flujo para que próximas preguntas sobre regímenes
+        # vayan al RAG en lugar de reiniciar el wizard accidentalmente.
+        state.entities.pop("tax_regime_flow", None)
+        state.active_tool = None
 
         return recommendation
 
@@ -412,23 +362,54 @@ class ToolExecutor:
             )
             detail_query = "Régimen MYPE Tributario requisitos beneficios"
 
-        # --- Construir respuesta base ---
+        perfil = (
+            f"- Ventas mensuales: {monthly_sales}\n"
+            f"- Necesita emitir facturas: {needs_invoices}\n"
+            f"- Cantidad de trabajadores: {worker_count}"
+        )
+
+        # --- Intentar enriquecer con LLM + RAG ---
+        rag_chunk = ""
+        if self.rag_service and self.rag_service.is_indexed():
+            rag_results = self.rag_service.search(detail_query, n_results=1)
+            if rag_results:
+                rag_chunk = rag_results[0]["text"]
+
+        if self.llm_service and self.llm_service.is_available():
+            prompt = (
+                f"Un usuario completó el asistente de regímenes tributarios de SUNAT Perú. "
+                f"Su perfil es:\n{perfil}\n\n"
+                f"El régimen recomendado es: {regime}\n"
+                f"Razón: {reason}\n\n"
+                f"Explícale de forma amable y sencilla por qué ese régimen es el mejor para él, "
+                f"qué impuestos pagará y cuál es el siguiente paso para inscribirse. "
+                f"Ofrece continuar ayudando si tiene más preguntas."
+            )
+            context_chunks = [perfil]
+            if rag_chunk:
+                context_chunks.append(rag_chunk)
+            try:
+                generated = self.llm_service.generate(
+                    query=prompt,
+                    context_chunks=context_chunks,
+                )
+                if generated:
+                    return generated
+            except Exception:
+                pass  # fallback al template
+
+        # Fallback si el LLM no está disponible
         response_lines = [
             f"Análisis completado. Mi recomendación para tu negocio es:\n",
             f"RÉGIMEN RECOMENDADO: {regime}\n",
             f"¿Por qué? {reason}\n",
         ]
 
-        # --- Enriquecer con RAG si está disponible ---
-        if self.rag_service and self.rag_service.is_indexed():
-            rag_results = self.rag_service.search(detail_query, n_results=1)
-            if rag_results:
-                best_result = rag_results[0]
-                response_lines.append("Información adicional de los documentos SUNAT:\n")
-                response_lines.append(best_result["text"])
-                response_lines.append("")
+        if rag_chunk:
+            response_lines.append("Información adicional de los documentos SUNAT:\n")
+            response_lines.append(rag_chunk)
+            response_lines.append("")
 
-        # --- Pie con siguiente paso ---
         response_lines.append(
             "¿Quieres saber más sobre este régimen o comparar con otras opciones? "
             "Puedes preguntarme con más detalle."
@@ -436,23 +417,13 @@ class ToolExecutor:
 
         return "\n".join(response_lines)
 
-    # ------------------------------------------------------------------
-    # TOOL 3: Orientación sobre multas y sanciones
-    # ------------------------------------------------------------------
-
     def _handle_fines_guidance(
         self,
         message: str,
         state: ConversationState,
     ) -> str:
-        """
-        Orientación sobre multas y sanciones. Redirige al RAG para los detalles.
-
-        Esta tool es un "pre-RAG": da un menú inicial orientativo y luego
-        deja que el RAG responda las preguntas específicas del usuario.
-        """
+        """Menú orientativo de multas. Sin flujo multi-turno: libera el control al RAG."""
         state.menu_context = "multas_y_sanciones"
-        # Esta tool no tiene flujo multi-turno: solo orienta y libera el control
         state.active_tool = None
 
         return (
@@ -466,13 +437,8 @@ class ToolExecutor:
             "Escribe tu pregunta y buscaré en los documentos SUNAT."
         )
 
-    # ------------------------------------------------------------------
-    # Normalización de respuestas
-    # ------------------------------------------------------------------
-
     def _normalize_answer(self, key: str, value: str) -> str:
-        """
-        Normaliza las respuestas del usuario para estandarizar el procesamiento.
+        """Normaliza respuestas de sí/no, tipo de persona y comprobantes.
 
         Ejemplos:
         - "sí", "si", "yes", "s" → "sí"
@@ -488,21 +454,18 @@ class ToolExecutor:
         """
         normalized = value.strip().lower()
 
-        # Normalización de respuestas sí/no
         if key in {"has_ruc", "has_employees", "needs_invoices"}:
             if normalized in {"si", "sí", "s", "yes", "claro", "correcto", "afirmativo"}:
                 return "sí"
             if normalized in {"no", "n", "nope", "negativo"}:
                 return "no"
 
-        # Normalización del tipo de persona
         if key == "person_type":
             if "jurid" in normalized or "empresa" in normalized or "sociedad" in normalized:
                 return "jurídica"
             if "natural" in normalized or "persona" in normalized:
                 return "natural"
 
-        # Normalización del tipo de comprobante
         if key == "voucher_type":
             tiene_factura = "factura" in normalized
             tiene_boleta = "boleta" in normalized
@@ -513,6 +476,4 @@ class ToolExecutor:
             if tiene_boleta:
                 return "boletas"
 
-        # Para campos de texto libre (actividad económica, ventas mensuales, trabajadores)
-        # devolvemos el valor tal cual pero limpio
         return value.strip()

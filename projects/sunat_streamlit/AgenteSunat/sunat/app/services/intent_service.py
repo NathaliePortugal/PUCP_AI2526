@@ -13,18 +13,11 @@ from app.schemas.nlu import IntentResult, RankedIntentLabel
 
 class IntentService:
     """
-    Clasificador de intención por similitud semántica usando ejemplos.
+    Clasificador de intención por similitud semántica.
 
-    Estrategia:
-    - se embebe el mensaje del usuario
-    - se compara contra ejemplos representativos por intención
-    - se obtiene un score por intención
-    - se selecciona la intención con mayor similitud
-
-    Ventajas:
-    - no depende de labels abstractos
-    - usa ejemplos reales del dominio
-    - reutiliza sentence-transformers, ya coherente con stack RAG
+    Embebe el mensaje del usuario y lo compara contra ejemplos por intención
+    usando similitud coseno. El score final es un híbrido de max y mean
+    similarity para mayor robustez que usar solo el promedio.
     """
 
     def __init__(
@@ -34,11 +27,7 @@ class IntentService:
     ) -> None:
         self.model_name = model_name
         self.intent_examples = intent_examples or INTENT_EXAMPLES
-        # El modelo se carga desde caché local.
-        # HF_HUB_OFFLINE y TRANSFORMERS_OFFLINE se setean en main.py antes
-        # de que este código corra, así evitamos llamadas innecesarias a internet.
         self._model = SentenceTransformer(self.model_name)
-
         self._intent_embeddings = self._build_intent_embeddings()
 
     def classify_topic(
@@ -49,20 +38,14 @@ class IntentService:
         normalized_text = self._normalize_text(text)
         context_used = self._extract_relevant_context(context or {})
 
-        query_embedding = self._model.encode(
-            normalized_text,
-            normalize_embeddings=True
-        )
+        query_embedding = self._model.encode(normalized_text, normalize_embeddings=True)
 
         ranked = []
         for intent_name, example_embeddings in self._intent_embeddings.items():
             score = self._score_intent(query_embedding, example_embeddings)
-            ranked.append(
-                RankedIntentLabel(label=intent_name, score=float(score))
-            )
+            ranked.append(RankedIntentLabel(label=intent_name, score=float(score)))
 
         ranked.sort(key=lambda item: item.score, reverse=True)
-
         top_label = ranked[0]
 
         return IntentResult(
@@ -74,43 +57,27 @@ class IntentService:
         )
 
     def _build_intent_embeddings(self) -> Dict[str, np.ndarray]:
-        intent_embeddings: Dict[str, np.ndarray] = {}
-
-        for intent_name, examples in self.intent_examples.items():
-            embeddings = self._model.encode(
-                examples,
-                normalize_embeddings=True
+        return {
+            intent_name: np.array(
+                self._model.encode(examples, normalize_embeddings=True)
             )
-            intent_embeddings[intent_name] = np.array(embeddings)
-
-        return intent_embeddings
+            for intent_name, examples in self.intent_examples.items()
+        }
 
     def _score_intent(
         self,
         query_embedding: np.ndarray,
         example_embeddings: np.ndarray
     ) -> float:
-        """
-        Score híbrido:
-        - max similarity: captura el ejemplo más parecido
-        - mean similarity: captura consistencia general
-
-        Esto suele ser más robusto que usar solo promedio.
-        """
+        """Score híbrido: 70% similitud máxima + 30% promedio."""
         similarities = np.dot(example_embeddings, query_embedding)
-        max_sim = float(np.max(similarities))
-        mean_sim = float(np.mean(similarities))
-
-        return (0.7 * max_sim) + (0.3 * mean_sim)
+        return (0.7 * float(np.max(similarities))) + (0.3 * float(np.mean(similarities)))
 
     def _normalize_text(self, text: str) -> str:
         return " ".join(text.strip().split())
 
     def _extract_relevant_context(self, context: Dict[str, Any]) -> Dict[str, str]:
-        cleaned_context: Dict[str, str] = {}
-
-        current_topic = context.get("current_topic")
-        if current_topic:
-            cleaned_context["current_topic"] = str(current_topic)
-
-        return cleaned_context
+        cleaned: Dict[str, str] = {}
+        if current_topic := context.get("current_topic"):
+            cleaned["current_topic"] = str(current_topic)
+        return cleaned

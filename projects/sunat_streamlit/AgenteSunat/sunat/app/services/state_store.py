@@ -18,6 +18,8 @@ class ConversationState:
 
 
 class InMemoryStateStore:
+    """Estado conversacional por sesión, guardado en memoria."""
+
     def __init__(self) -> None:
         self._store: dict[str, ConversationState] = {}
 
