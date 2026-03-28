@@ -4,6 +4,7 @@ plotly
 sentence-transformers
 transformers
 torch
+torchvision
 faiss-cpu
 pymupdf
 pymupdf4llm
