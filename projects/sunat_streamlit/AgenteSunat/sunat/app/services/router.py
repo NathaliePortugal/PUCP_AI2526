@@ -9,6 +9,7 @@ from app.core.constants import (
     ACTION_USE_TOOL,
     DOCUMENTAL_INTENTS,
     LOW_CONFIDENCE_THRESHOLD,
+    ONE_SHOT_TOOL_INTENTS,
     TOOL_INTENT_TO_NAME,
 )
 from app.schemas.nlu import IntentResult, RouteDecision
@@ -66,9 +67,10 @@ class ConversationRouter:
                 reason=f"Confianza baja ({intent_result.confidence:.2f}).",
             )
 
-        # 2. Tool asignada + mensaje de proceso (no solo consulta de información)
+        # 2. Tool asignada → activar si es one-shot (siempre) o si no es informacional
         tool_name = TOOL_INTENT_TO_NAME.get(intent_result.intent)
-        if tool_name and not self._is_informational_query(message):
+        is_one_shot = intent_result.intent in ONE_SHOT_TOOL_INTENTS
+        if tool_name and (is_one_shot or not self._is_informational_query(message)):
             return RouteDecision(
                 action=ACTION_USE_TOOL,
                 use_rag=False,

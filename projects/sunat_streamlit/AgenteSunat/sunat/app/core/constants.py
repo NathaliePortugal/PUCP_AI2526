@@ -44,6 +44,13 @@ TOOL_INTENT_TO_NAME: Dict[str, str] = {
     "cronograma_obligaciones": "handle_schedule_guidance",
 }
 
+# Intents cuya tool siempre debe ejecutarse sin importar si la query parece
+# informacional. Son orientaciones de un solo turno, no wizards multi-turno.
+ONE_SHOT_TOOL_INTENTS: Set[str] = {
+    "multas_y_sanciones",
+    "cronograma_obligaciones",
+}
+
 LOW_CONFIDENCE_THRESHOLD = 0.35
 MEDIUM_CONFIDENCE_THRESHOLD = 0.50
 HIGH_CONFIDENCE_THRESHOLD = 0.65
