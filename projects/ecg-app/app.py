@@ -3,6 +3,7 @@ import streamlit as st
 from config import LEADS
 from data.loader import get_registros_disponibles, cargar
 from visualization.plotter import plot_lead
+from ecg_hr_analysis import mostrar_analisis_hr
 
 st.set_page_config(page_title="ECG Viewer", layout="wide", page_icon="🫀")
 st.title("🫀 Visualizador ECG")
@@ -39,3 +40,6 @@ else:
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.warning(f"Derivación {lead} no disponible en este registro.")
+
+# FASE 2 — análisis HR
+mostrar_analisis_hr(señales, segundos)

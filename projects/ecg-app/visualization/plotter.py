@@ -39,7 +39,13 @@ def plot_lead(t, señal, lead_name, segundos=5.0):
         margin=dict(l=50, r=10, t=25, b=25),
         xaxis=dict(title='Tiempo (s)', showgrid=False, range=[0, segundos]),
         yaxis=dict(title='mV',         showgrid=False, range=[y_min, y_max]),
-        title=dict(text=f"Derivación {lead_name}", font=dict(size=12)),
+        #title=dict(text=f"Derivación {lead_name}", font=dict(size=12)),
+        title=dict(
+            text=f"Derivada {lead_name}",
+            font=dict(size=13, color="#aaaaaa"),
+            x=0.01,
+            xanchor="left",
+        ),
         showlegend=False,
     )
 
