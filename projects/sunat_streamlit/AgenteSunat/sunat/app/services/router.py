@@ -23,14 +23,15 @@ logger = logging.getLogger(__name__)
 
 class ConversationRouter:
     """
-    Decide qué acción tomar con cada mensaje: tool, RAG o pedir aclaración.
+    Decide qué hacer con cada mensaje: lanzar un wizard (tool),
+    buscar en documentos (RAG) o pedir aclaración al usuario.
 
     Orden de prioridad:
-    0. Si hay un flujo activo en el estado, continuarlo
-    1. Confianza baja → pedir aclaración
-    2. Intención con tool asignada + mensaje no informacional → activar tool
-    3. Intención documental → RAG
-    4. Contexto de aclaración previa → reutilizar tool del contexto
+    0. Si hay un wizard activo, seguir con él
+    1. Confianza muy baja → pedir aclaración
+    2. Intent tiene wizard asignado y el mensaje pide un proceso → activar wizard
+    3. Intent documental → buscar en RAG
+    4. Si estaba esperando aclaración, reutilizar contexto anterior
     5. Fallback → pedir aclaración
     """
 
@@ -44,7 +45,7 @@ class ConversationRouter:
         state: ConversationState,
     ) -> RouteDecision:
 
-        # 0. Flujo activo: continuar la tool en curso
+        # 0. Si hay un wizard en curso, seguir con él sin importar el intent
         active_tool = state.active_tool
         if active_tool:
             return RouteDecision(
@@ -56,7 +57,7 @@ class ConversationRouter:
                 reason=f"Flujo activo: continuando tool '{active_tool}'.",
             )
 
-        # 1. Confianza baja
+        # 1. Confianza muy baja → no sabemos de qué está hablando el usuario
         if intent_result.confidence < LOW_CONFIDENCE_THRESHOLD:
             return RouteDecision(
                 action=ACTION_CLARIFY,
@@ -67,7 +68,7 @@ class ConversationRouter:
                 reason=f"Confianza baja ({intent_result.confidence:.2f}).",
             )
 
-        # 2. Tool asignada → activar si es one-shot (siempre) o si no es informacional
+        # 2. Si el intent tiene wizard y el usuario quiere iniciar un proceso
         tool_name = TOOL_INTENT_TO_NAME.get(intent_result.intent)
         is_one_shot = intent_result.intent in ONE_SHOT_TOOL_INTENTS
         if tool_name and (is_one_shot or not self._is_informational_query(message)):
@@ -80,7 +81,7 @@ class ConversationRouter:
                 reason=f"Intención '{intent_result.intent}' → tool '{tool_name}'.",
             )
 
-        # 3. Intención documental → RAG
+        # 3. Intent documental → buscar en los PDFs de SUNAT
         if intent_result.intent in DOCUMENTAL_INTENTS:
             return RouteDecision(
                 action=ACTION_USE_RAG,
@@ -91,7 +92,7 @@ class ConversationRouter:
                 reason=f"Intención '{intent_result.intent}' → RAG.",
             )
 
-        # 4. Reutilizar contexto de aclaración previa
+        # 4. Si estábamos esperando aclaración, intentar reutilizar el contexto
         fallback_tool = self._resolve_tool_from_clarification_context(state)
         if fallback_tool:
             return RouteDecision(
@@ -103,7 +104,7 @@ class ConversationRouter:
                 reason=f"Reutilizando contexto previo → tool '{fallback_tool}'.",
             )
 
-        # 5. Fallback
+        # 5. No se pudo determinar nada con certeza
         return RouteDecision(
             action=ACTION_CLARIFY,
             use_rag=False,
@@ -115,10 +116,10 @@ class ConversationRouter:
 
     def _is_informational_query(self, message: str) -> bool:
         """
-        Determina si el mensaje busca información (→ RAG) o quiere iniciar
-        un flujo guiado (→ tool/wizard).
+        Detecta si el usuario quiere información (→ RAG) o quiere iniciar
+        un wizard guiado (→ tool).
 
-        Usa el LLM si está disponible. Si no, cae en patrones hardcodeados.
+        Usa el LLM si está disponible. Si no, cae en una lista de patrones.
         """
         if self._llm and self._llm.is_available():
             try:
@@ -157,10 +158,9 @@ class ConversationRouter:
             except Exception as e:
                 logger.debug("LLM no disponible para clasificar (%s). Usando patrones.", e)
 
-        # Fallback: patrones hardcodeados
+        # Fallback cuando no hay LLM disponible
         text = message.lower().strip()
 
-        # Verificar primero señales claras de PROCESO para cortocircuitar el check
         process_patterns = [
             "quiero iniciar", "iniciar la guía", "iniciar guía",
             "ayúdame a elegir", "ayudame a elegir",

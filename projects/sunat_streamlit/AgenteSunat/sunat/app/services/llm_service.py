@@ -10,13 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 class LLMService:
-    """
-    Generación de texto con Groq.
+    """Wrapper para llamar al LLM de Groq. Si no hay API key, devuelve None
+    y el sistema sigue funcionando solo con RAG."""
 
-    Si la API key no está configurada o hay un error de red, devuelve None
-    y el RagExecutor usa los chunks directamente como fallback.
-    """
-
+    # Prompt del asistente "Sunatito"
     SYSTEM_PROMPT = """Eres "Sunatito", el asistente virtual de SUNAT Perú. Tu misión es ayudar a personas que quieren formalizar o manejar mejor su negocio.
 
 TONO Y LENGUAJE:
@@ -30,6 +27,8 @@ REGLAS ESTRICTAS — DEBES CUMPLIRLAS SIN EXCEPCIÓN:
 - PROHIBIDO usar tu conocimiento de entrenamiento para complementar la respuesta.
 - PROHIBIDO inventar o incluir URLs, enlaces, números de teléfono, fechas o montos que no estén literalmente en el contexto.
 - PROHIBIDO mencionar leyes, decretos o resoluciones que no aparezcan textualmente en el contexto.
+- Usa las siglas tal como aparecen en el contexto, sin inventar nombres alternativos (por ejemplo, si el contexto dice "RMT", no lo llames de otra forma).
+- PROHIBIDO incluir URLs o enlaces en tu respuesta, aunque aparezcan en el contexto.
 - Si el contexto no contiene la respuesta, di exactamente: "No tengo esa información en mis documentos. Te recomiendo consultar directamente en sunat.gob.pe o llamar a la central 0-808-88-666."
 - Cuando la respuesta tenga varios pasos o puntos, usa una lista numerada o viñetas.
 - Sé conciso: responde lo que se pregunta, sin rodeos.
@@ -63,14 +62,12 @@ REGLAS ESTRICTAS — DEBES CUMPLIRLAS SIN EXCEPCIÓN:
         return self._client is not None
 
     def generate(self, query: str, context_chunks: List[str]) -> Optional[str]:
-        """
-        Genera una respuesta usando los chunks recuperados por RAG como contexto.
-        Devuelve None si el LLM no está disponible o falla, para que el caller
-        use los chunks directamente.
-        """
+        """Genera una respuesta usando los chunks del RAG como contexto.
+        Devuelve None si algo falla, para que el caller use los chunks directo."""
         if not self.is_available():
             return None
 
+        # Juntamos los chunks con un separador para que el LLM los distinga
         context = "\n\n---\n\n".join(context_chunks)
         user_prompt = (
             f"Contexto de documentos SUNAT:\n\n{context}\n\n---\n\n"

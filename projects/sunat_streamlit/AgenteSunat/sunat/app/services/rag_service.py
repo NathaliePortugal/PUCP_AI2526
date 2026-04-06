@@ -16,9 +16,11 @@ logger = logging.getLogger(__name__)
 
 class RagService:
     """
-    Pipeline RAG completo: carga → chunking → embedding → ChromaDB → búsqueda.
+    Se encarga de todo lo relacionado a los documentos: cargarlos,
+    dividirlos en chunks, indexarlos en ChromaDB y buscar luego.
 
-    ChromaDB persiste los datos en disco, así no se re-indexa en cada arranque.
+    ChromaDB guarda los datos en disco así que no se re-indexa cada vez
+    que se inicia la app.
     """
 
     def __init__(self) -> None:
@@ -48,8 +50,8 @@ class RagService:
 
     def index_documents(self, docs_dir: Optional[Path] = None) -> int:
         """
-        Indexa todos los .txt y .pdf de docs_dir en ChromaDB.
-        Usa upsert, así que es seguro re-ejecutar sin crear duplicados.
+        Lee todos los .txt y .pdf de la carpeta de documentos y los indexa en ChromaDB.
+        Usa upsert, así que no genera duplicados si se ejecuta varias veces.
         """
         target_dir = docs_dir or cfg.DOCS_DIR
 
@@ -82,11 +84,10 @@ class RagService:
         source_filter: Optional[Sequence[str]] = None,
     ) -> List[Dict[str, Any]]:
         """
-        Busca los chunks más relevantes para la consulta.
+        Busca los chunks más parecidos al query.
 
-        Recupera más candidatos de los necesarios, filtra por MAX_DISTANCE y
-        deduplica por fuente (un resultado por documento) para evitar que un
-        documento grande monopolice todos los slots.
+        Trae más candidatos de los necesarios, filtra por distancia máxima
+        y deduplica por archivo (máximo 1 resultado por documento).
         """
         if not self.is_indexed():
             return []
@@ -131,6 +132,7 @@ class RagService:
                 "similarity_pct": round((1 - distance / 2) * 100, 1),
             }
 
+            # Nos quedamos con el chunk más cercano por documento
             if source not in best_by_source or distance < best_by_source[source]["distance"]:
                 best_by_source[source] = entry
 
@@ -176,11 +178,11 @@ class RagService:
 
     def _extract_text_from_pdf(self, file_path: Path) -> str:
         """
-        Extrae texto del PDF. Intenta pymupdf4llm primero (mejor con tablas
-        y columnas), cae en PyMuPDF (fitz) como fallback.
+        Extrae texto del PDF. Primero intenta con pymupdf4llm que maneja mejor
+        tablas y columnas. Si falla, usa fitz como alternativa.
         """
         # Paso 1: pymupdf4llm — mejor calidad para PDFs con tablas
-        # table_strategy="lines" evita el modelo ONNX interno que puede fallar en Windows
+        # table_strategy="lines" evita el modelo ONNX que puede fallar en Windows
         try:
             import pymupdf4llm
             text = pymupdf4llm.to_markdown(str(file_path), table_strategy="lines")
@@ -191,7 +193,7 @@ class RagService:
         except Exception as e:
             logger.debug("pymupdf4llm falló en '%s' (%s). Usando fitz.", file_path.name, type(e).__name__)
 
-        # Paso 2: fitz con detección de páginas imagen
+        # Paso 2: fitz como fallback
         try:
             import fitz
 
@@ -227,7 +229,8 @@ class RagService:
 
     def _chunk_text(self, text: str, chunk_size: int, overlap: int) -> List[str]:
         """
-        Divide el texto en chunks con overlap para no perder contexto en los bordes.
+        Divide el texto en chunks con un pequeño overlap entre ellos para
+        no perder contexto cuando la respuesta está a caballo entre dos chunks.
         Intenta cortar en saltos de línea o espacios para no partir palabras.
         """
         if len(text) <= chunk_size:

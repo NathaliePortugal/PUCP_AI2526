@@ -13,9 +13,9 @@ COLLECTION_NAME = "sunat_docs"
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 
 # Tamaño de cada chunk en caracteres y superposición entre chunks consecutivos
-CHUNK_SIZE = 500
-CHUNK_OVERLAP = 100
+CHUNK_SIZE = 900
+CHUNK_OVERLAP = 150
 
 # Resultados a recuperar por búsqueda y umbral máximo de distancia coseno
-TOP_K_RESULTS = 3
+TOP_K_RESULTS = 4
 MAX_DISTANCE = 0.6

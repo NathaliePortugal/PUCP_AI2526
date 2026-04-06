@@ -11,8 +11,8 @@ from app.services.state_store import ConversationState
 
 logger = logging.getLogger(__name__)
 
-# Restringe la búsqueda vectorial a los documentos relevantes según la intención.
-# Evita falsos positivos semánticos cuando la misma palabra aparece en varios docs.
+# Restringe la búsqueda vectorial a documentos relevantes por intención,
+# evitando falsos positivos cuando la misma palabra aparece en varios PDFs.
 INTENT_TO_SOURCES: Dict[str, List[str]] = {
     "multas_y_sanciones": [
         "Guia_infraciones-sanciones-tributarias_2023.pdf",
@@ -64,10 +64,8 @@ FALLBACK_LINKS = (
 
 class RagExecutor:
     """
-    Ejecuta consultas documentales usando ChromaDB + LLM.
-
-    Sin LLM: devuelve los chunks más relevantes formateados directamente.
-    Con LLM: genera una respuesta natural usando los chunks como contexto.
+    Busca en ChromaDB y genera la respuesta usando el LLM.
+    Si no hay LLM disponible, devuelve los chunks directamente formateados.
     """
 
     def __init__(self, rag_service: RagService, llm_service: LLMService) -> None:
@@ -88,7 +86,7 @@ class RagExecutor:
 
         results = self.rag_service.search(query=message, n_results=3, source_filter=source_filter)
 
-        # Si la búsqueda filtrada no dio resultados, reintentamos sin filtro
+        # Si con el filtro no encontramos nada, intentamos sin filtro
         if not results and source_filter:
             logger.info("Búsqueda filtrada vacía para '%s'. Reintentando sin filtro.", intent)
             results = self.rag_service.search(query=message, n_results=3)
@@ -104,7 +102,7 @@ class RagExecutor:
         state: ConversationState,
         extra_context: str = "",
     ) -> str:
-        """Versión extendida que acepta contexto adicional para enriquecer el query."""
+        """Versión que acepta contexto adicional para enriquecer el query."""
         enriched_query = f"{message} {extra_context}".strip() if extra_context else message
         state.menu_context = "consulta_documental"
 
@@ -132,7 +130,7 @@ class RagExecutor:
             if generated:
                 return f"{generated}\n\n{fuentes_bloque}"
 
-        # Fallback: mostrar chunks formateados directamente
+        # Sin LLM: mostramos los chunks directamente
         best = results[0]
         if len(results) == 1 or best["distance"] < 0.3:
             respuesta = self._format_single_result(query, best)
@@ -174,11 +172,11 @@ class RagExecutor:
 
     def _build_sources_block(self, results: List[Dict[str, Any]]) -> str:
         seen = set()
-        lines = ["Fuentes consultadas:"]
+        lines = ["---", "**Fuentes consultadas:**"]
         for r in results:
             if r["source"] not in seen:
                 seen.add(r["source"])
-                lines.append(f"   • {self._format_source_name(r['source'])}  ({r['source']})")
+                lines.append(f"- {self._format_source_name(r['source'])}")
         return "\n".join(lines)
 
     def _format_source_name(self, filename: str) -> str:

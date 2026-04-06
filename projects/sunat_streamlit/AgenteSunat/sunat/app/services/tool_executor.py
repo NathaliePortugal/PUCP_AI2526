@@ -1,14 +1,13 @@
 # app/services/tool_executor.py
 """
-Flujos guiados multi-turno para el chatbot SUNAT.
+Wizards multi-turno para el chatbot SUNAT.
 
-Cada "tool" hace preguntas secuenciales al usuario, guarda las respuestas en
+Cada wizard hace preguntas secuenciales al usuario, guarda las respuestas en
 state.entities y genera un resultado personalizado al completarse.
 
-Tools disponibles:
+Wizards disponibles:
 - build_formalization_checklist : checklist de formalización según perfil del negocio
 - compare_tax_regimes           : recomendación de régimen tributario
-- handle_fines_guidance         : orientación inicial sobre multas y sanciones
 """
 
 from __future__ import annotations
@@ -20,9 +19,9 @@ from app.services.state_store import ConversationState
 
 class ToolExecutor:
     """
-    Ejecuta tools especializadas según el nombre resuelto por el ConversationRouter.
+    Ejecuta wizards guiados según el nombre resuelto por el ConversationRouter.
 
-    Cada tool define sus pasos en una lista de dicts {key, question}.
+    Cada wizard define sus pasos en una lista de dicts {key, question}.
     Las respuestas se acumulan en state.entities hasta completar el flujo.
     """
 
@@ -57,31 +56,29 @@ class ToolExecutor:
             "key": "monthly_sales",
             "question": (
                 "Para ayudarte a elegir el régimen correcto, necesito algunos datos.\n\n"
-                "¿Cuánto factura o planeas facturar tu negocio al mes?\n"
-                "Opciones:\n"
-                "  a) Menos de S/ 5,000\n"
-                "  b) Entre S/ 5,000 y S/ 8,000\n"
-                "  c) Entre S/ 8,000 y S/ 43,750 (hasta S/ 525,000 al año)\n"
-                "  d) Más de S/ 43,750 al mes\n"
+                "¿Cuánto factura o planeas facturar tu negocio al mes?\n\n"
+                "- **a)** Menos de S/ 5,000\n"
+                "- **b)** Entre S/ 5,000 y S/ 8,000\n"
+                "- **c)** Entre S/ 8,000 y S/ 43,750 (hasta S/ 525,000 al año)\n"
+                "- **d)** Más de S/ 43,750 al mes\n\n"
                 "Responde con la letra o escribe el monto aproximado."
             ),
         },
         {
             "key": "needs_invoices",
             "question": (
-                "¿Necesitas emitir facturas a empresas o instituciones?\n"
-                "(Por ejemplo: si vendes a otras empresas que necesitan factura para su contabilidad)\n"
-                "Responde: sí o no."
+                "¿Necesitas emitir facturas a empresas o instituciones?\n\n"
+                "*(Por ejemplo: si vendes a otras empresas que necesitan factura para su contabilidad)*\n\n"
+                "Responde: **sí** o **no**."
             ),
         },
         {
             "key": "worker_count",
             "question": (
-                "¿Cuántos trabajadores tienes o planeas contratar?\n"
-                "Opciones:\n"
-                "  a) Ninguno (trabajo solo)\n"
-                "  b) Entre 1 y 10 trabajadores\n"
-                "  c) Más de 10 trabajadores\n"
+                "¿Cuántos trabajadores tienes o planeas contratar?\n\n"
+                "- **a)** Ninguno (trabajo solo)\n"
+                "- **b)** Entre 1 y 10 trabajadores\n"
+                "- **c)** Más de 10 trabajadores\n\n"
                 "Responde con la letra o número."
             ),
         },
@@ -98,12 +95,6 @@ class ToolExecutor:
 
         if tool_name == "compare_tax_regimes":
             return self._compare_tax_regimes(message, state)
-
-        if tool_name == "handle_fines_guidance":
-            return self._handle_fines_guidance(message, state)
-
-        if tool_name == "handle_schedule_guidance":
-            return self._handle_schedule_guidance(message, state)
 
         return f"Tool '{tool_name}' no reconocida."
 
@@ -128,7 +119,7 @@ class ToolExecutor:
                 "Perfecto. Iniciemos el flujo de formalización del negocio.\n\n"
                 "Te haré unas preguntas cortas para construir un checklist "
                 "personalizado para tu situación.\n\n"
-                f"Pregunta 1 de {len(self.FORMALIZATION_STEPS)}: "
+                f"**Pregunta 1 de {len(self.FORMALIZATION_STEPS)}:**\n\n"
                 f"{self.FORMALIZATION_STEPS[0]['question']}"
             )
 
@@ -141,10 +132,9 @@ class ToolExecutor:
             next_question = self.FORMALIZATION_STEPS[current_step]["question"]
             flow_data["step"] = current_step + 1
             return (
-                f"Pregunta {current_step + 1} de {len(self.FORMALIZATION_STEPS)}: "
+                f"**Pregunta {current_step + 1} de {len(self.FORMALIZATION_STEPS)}:**\n\n"
                 f"{next_question}"
             )
-
 
         summary = self._build_formalization_summary(flow_data)
 
@@ -163,11 +153,8 @@ class ToolExecutor:
 
     def _build_formalization_summary(self, flow_data: Dict[str, Any]) -> str:
         """
-        Genera el checklist de formalización personalizado.
-
-        Si el LLM está disponible, genera una respuesta conversacional y cálida
-        basada en el perfil del usuario. Si no, usa el template hardcodeado como
-        fallback.
+        Genera el checklist personalizado. Si el LLM está disponible lo usa
+        para dar una respuesta más conversacional; si no, usa el template fijo.
         """
         has_ruc = flow_data.get("has_ruc", "no especificado")
         person_type = flow_data.get("person_type", "no especificado")
@@ -183,7 +170,6 @@ class ToolExecutor:
             f"- Tendrá trabajadores: {has_employees}"
         )
 
-        # --- Intentar enriquecer con LLM ---
         if self.llm_service and self.llm_service.is_available():
             prompt = (
                 "Un usuario acaba de completar el flujo de formalización de negocio "
@@ -203,9 +189,9 @@ class ToolExecutor:
                 if generated:
                     return generated
             except Exception:
-                pass  # fallback al template
+                pass  # si falla el LLM, usamos el template de abajo
 
-        # Fallback si el LLM no está disponible
+        # Fallback sin LLM
         checklist = [
             "1. Definir claramente el tipo de contribuyente (persona natural o jurídica).",
             "2. Confirmar la actividad económica principal y su código CIIU.",
@@ -263,10 +249,9 @@ class ToolExecutor:
                 "Vamos a encontrar el régimen tributario ideal para tu negocio.\n\n"
                 "Te haré 3 preguntas cortas. Con esas respuestas puedo darte una "
                 "recomendación personalizada.\n\n"
-                f"Pregunta 1 de {len(self.TAX_REGIME_STEPS)}: "
+                f"**Pregunta 1 de {len(self.TAX_REGIME_STEPS)}:**\n\n"
                 f"{self.TAX_REGIME_STEPS[0]['question']}"
             )
-
 
         previous_index = current_step - 1
         if 0 <= previous_index < len(self.TAX_REGIME_STEPS):
@@ -274,19 +259,16 @@ class ToolExecutor:
             normalized_value = self._normalize_answer(previous_key, message)
             flow_data[previous_key] = normalized_value
 
-
         if current_step < len(self.TAX_REGIME_STEPS):
             next_question = self.TAX_REGIME_STEPS[current_step]["question"]
             flow_data["step"] = current_step + 1
             return (
-                f"Pregunta {current_step + 1} de {len(self.TAX_REGIME_STEPS)}: "
+                f"**Pregunta {current_step + 1} de {len(self.TAX_REGIME_STEPS)}:**\n\n"
                 f"{next_question}"
             )
 
-
         recommendation = self._build_regime_recommendation(flow_data, state)
 
-        # Guardar perfil para uso posterior
         state.entities["tax_regime_result"] = {
             "monthly_sales": flow_data.get("monthly_sales"),
             "needs_invoices": flow_data.get("needs_invoices"),
@@ -306,28 +288,24 @@ class ToolExecutor:
         state: ConversationState,
     ) -> str:
         """
-        Determina el régimen recomendado basándose en las respuestas del usuario
-        y agrega información documental del RAG si está disponible.
+        Determina el régimen recomendado y enriquece la respuesta con RAG + LLM.
 
-        Lógica de recomendación:
+        Lógica:
         - No necesita facturas + ventas ≤ S/8,000/mes → Nuevo RUS
-        - Necesita facturas + ventas ≤ S/43,750/mes → RER
-        - Necesita facturas + ventas mayores o planea crecer → RMT
+        - Necesita facturas + ventas ≤ S/43,750/mes  → RER
+        - Ventas altas o necesita facturas             → RMT
         """
         monthly_sales = str(flow_data.get("monthly_sales", "")).lower()
         needs_invoices = str(flow_data.get("needs_invoices", "")).lower()
         worker_count = str(flow_data.get("worker_count", "")).lower()
 
-        # --- Lógica de recomendación ---
-        # Determinar rango de ventas
-        ventas_bajo = any(x in monthly_sales for x in ["a)", "a ", "menos", "5000", "5,000"])
-        ventas_medio_bajo = any(x in monthly_sales for x in ["b)", "b ", "8000", "8,000"])
-        ventas_medio = any(x in monthly_sales for x in ["c)", "c ", "43750", "43,750", "525000"])
-        ventas_alto = any(x in monthly_sales for x in ["d)", "d ", "mayor", "más de"])
+        ventas_bajo = any(x in monthly_sales for x in ["a)", "a ", "menos", "5000", "5,000"]) or monthly_sales.strip() == "a"
+        ventas_medio_bajo = any(x in monthly_sales for x in ["b)", "b ", "8000", "8,000"]) or monthly_sales.strip() == "b"
+        ventas_medio = any(x in monthly_sales for x in ["c)", "c ", "43750", "43,750", "525000"]) or monthly_sales.strip() == "c"
+        ventas_alto = any(x in monthly_sales for x in ["d)", "d ", "mayor", "más de"]) or monthly_sales.strip() == "d"
 
         necesita_facturas = needs_invoices in {"sí", "si", "s", "yes"}
 
-        # Árboles de decisión
         if not necesita_facturas and (ventas_bajo or ventas_medio_bajo):
             regime = "Nuevo RUS"
             reason = (
@@ -356,7 +334,7 @@ class ToolExecutor:
             detail_query = "Régimen MYPE Tributario tasa 10% beneficios"
 
         else:
-            # Caso ambiguo: recomendar RMT como opción segura
+            # Caso ambiguo: RMT es la opción más segura y flexible
             regime = "Régimen MYPE Tributario (RMT)"
             reason = (
                 "Basándome en tu perfil, el Régimen MYPE Tributario es la opción "
@@ -371,12 +349,16 @@ class ToolExecutor:
             f"- Cantidad de trabajadores: {worker_count}"
         )
 
-        # --- Intentar enriquecer con LLM + RAG ---
+        # Intentar enriquecer con RAG + LLM
         rag_chunk = ""
+        rag_source = ""
         if self.rag_service and self.rag_service.is_indexed():
             rag_results = self.rag_service.search(detail_query, n_results=1)
             if rag_results:
                 rag_chunk = rag_results[0]["text"]
+                rag_source = rag_results[0]["source"]
+
+        sources_block = self._build_sources_block(rag_source) if rag_source else ""
 
         if self.llm_service and self.llm_service.is_available():
             prompt = (
@@ -397,11 +379,11 @@ class ToolExecutor:
                     context_chunks=context_chunks,
                 )
                 if generated:
-                    return generated
+                    return f"{generated}\n\n{sources_block}" if sources_block else generated
             except Exception:
-                pass  # fallback al template
+                pass  # si falla el LLM, usamos el template
 
-        # Fallback si el LLM no está disponible
+        # Fallback sin LLM
         response_lines = [
             f"Análisis completado. Mi recomendación para tu negocio es:\n",
             f"RÉGIMEN RECOMENDADO: {regime}\n",
@@ -418,67 +400,27 @@ class ToolExecutor:
             "Puedes preguntarme con más detalle."
         )
 
+        if sources_block:
+            response_lines.append(f"\n{sources_block}")
+
         return "\n".join(response_lines)
 
-    def _handle_fines_guidance(
-        self,
-        message: str,
-        state: ConversationState,
-    ) -> str:
-        """Menú orientativo de multas. Sin flujo multi-turno: libera el control al RAG."""
-        state.menu_context = "multas_y_sanciones"
-        state.active_tool = None
-
-        return (
-            "Entiendo que tienes dudas sobre multas y sanciones tributarias.\n\n"
-            "Puedo ayudarte con los siguientes temas:\n"
-            "  • Infracciones por no presentar declaraciones a tiempo.\n"
-            "  • Cómo calcular y reducir tu multa con el Régimen de Gradualidad.\n"
-            "  • Fraccionamiento de deudas tributarias.\n"
-            "  • Consejos para evitar sanciones en el futuro.\n\n"
-            "¿Sobre qué tema específico quieres consultar? "
-            "Escribe tu pregunta y buscaré en los documentos SUNAT."
-        )
-
-    def _handle_schedule_guidance(
-        self,
-        message: str,
-        state: ConversationState,
-    ) -> str:
-        """Orientación inicial sobre el cronograma de obligaciones. Libera el control al RAG."""
-        state.menu_context = "cronograma_obligaciones"
-        state.active_tool = None
-
-        return (
-            "El cronograma de vencimientos de SUNAT indica las fechas límite para "
-            "presentar declaraciones y pagar impuestos cada mes, según el último dígito "
-            "de tu RUC.\n\n"
-            "Puedo ayudarte con:\n"
-            "  • Cómo leer el cronograma y qué columna corresponde a tu RUC.\n"
-            "  • Qué pasa si declaras después de la fecha de vencimiento.\n"
-            "  • Vencimientos del PDT 621 (IGV/Renta mensual).\n"
-            "  • Plazo para la declaración jurada anual.\n\n"
-            "Para las fechas exactas del año en curso, el cronograma oficial está en "
-            "sunat.gob.pe → Orientación Tributaria → Cronograma de Obligaciones.\n\n"
-            "¿Quieres que te explique cómo funciona el cronograma o tienes alguna "
-            "pregunta específica sobre fechas y plazos?"
-        )
+    def _build_sources_block(self, source: str) -> str:
+        stem = source.rsplit(".", 1)[0]
+        name_map = {
+            "Régimen MYPE Tributario _ Emprender": "Régimen MYPE Tributario",
+            "Regímenes Tributarios _ Emprender": "Regímenes Tributarios",
+            "Regímenes Tributarios _ EmprenderCompare": "Comparativa de Regímenes Tributarios",
+            "363257-remype-tributario": "Régimen MYPE Tributario (D.L. 1269)",
+            "cartilla_formalizacion_2020_PORTAL": "Cartilla de Formalización",
+            "Caso practico RMT1": "Caso Práctico RMT",
+            "Libro-Cultura_Tributaria_y_Aduanera_final_0": "Cultura Tributaria y Aduanera",
+        }
+        label = name_map.get(stem, stem.replace("_", " ").title())
+        return f"---\n**Fuentes consultadas:**\n- {label}"
 
     def _normalize_answer(self, key: str, value: str) -> str:
-        """Normaliza respuestas de sí/no, tipo de persona y comprobantes.
-
-        Ejemplos:
-        - "sí", "si", "yes", "s" → "sí"
-        - "persona juridica" → "jurídica"
-        - "ambos tipos" → "ambos"
-
-        Args:
-            key: nombre del campo (has_ruc, person_type, etc.)
-            value: respuesta libre del usuario.
-
-        Returns:
-            Valor normalizado.
-        """
+        """Normaliza respuestas comunes para que el wizard las entienda bien."""
         normalized = value.strip().lower()
 
         if key in {"has_ruc", "has_employees", "needs_invoices"}:

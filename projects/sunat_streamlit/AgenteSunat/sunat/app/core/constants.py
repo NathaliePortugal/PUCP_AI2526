@@ -2,6 +2,7 @@
 
 from typing import Dict, Set
 
+# Etiquetas que el clasificador compara con el mensaje del usuario
 TOPIC_LABELS = [
     "consulta sobre multas tributarias o sanciones",
     "consulta sobre cómo iniciar un negocio, sacar RUC o formalizar una empresa",
@@ -22,6 +23,7 @@ TOPIC_LABEL_TO_INTENT: Dict[str, str] = {
     "consulta documental general de SUNAT": "consulta_documental_general",
 }
 
+# Todos estos intents van a RAG por defecto
 DOCUMENTAL_INTENTS: Set[str] = {
     "multas_y_sanciones",
     "formalizacion_negocio",
@@ -37,19 +39,14 @@ ACTION_USE_RAG = "use_rag"
 ACTION_USE_TOOL = "use_tool"
 ACTION_CLARIFY = "clarify"
 
+# Solo estos intents pueden lanzar un wizard interactivo
 TOOL_INTENT_TO_NAME: Dict[str, str] = {
     "regimenes_tributarios": "compare_tax_regimes",
     "formalizacion_negocio": "build_formalization_checklist",
-    "multas_y_sanciones": "handle_fines_guidance",
-    "cronograma_obligaciones": "handle_schedule_guidance",
 }
 
-# Intents cuya tool siempre debe ejecutarse sin importar si la query parece
-# informacional. Son orientaciones de un solo turno, no wizards multi-turno.
-ONE_SHOT_TOOL_INTENTS: Set[str] = {
-    "multas_y_sanciones",
-    "cronograma_obligaciones",
-}
+# Wizards multi-turno que siempre se activan (no son informacionales).
+ONE_SHOT_TOOL_INTENTS: Set[str] = set()
 
 LOW_CONFIDENCE_THRESHOLD = 0.35
 MEDIUM_CONFIDENCE_THRESHOLD = 0.50

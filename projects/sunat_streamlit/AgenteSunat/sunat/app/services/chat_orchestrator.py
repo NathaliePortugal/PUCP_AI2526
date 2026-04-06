@@ -11,14 +11,14 @@ from app.services.tool_executor import ToolExecutor
 
 class ChatOrchestrator:
     """
-    Coordina el procesamiento de cada turno de conversación.
+    Coordina cada turno de conversación.
 
-    Flujo por mensaje:
-    1. Cargar estado de sesión
-    2. Clasificar intención
-    3. Decidir ruta (tool / RAG / clarificación)
-    4. Actualizar estado
-    5. Ejecutar acción y devolver respuesta
+    Por cada mensaje del usuario:
+    1. Carga el estado de la sesión
+    2. Clasifica la intención
+    3. El router decide qué hacer (wizard / RAG / aclaración)
+    4. Actualiza el estado
+    5. Ejecuta la acción y devuelve la respuesta
     """
 
     def __init__(

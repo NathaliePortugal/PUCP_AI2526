@@ -13,11 +13,11 @@ from app.schemas.nlu import IntentResult, RankedIntentLabel
 
 class IntentService:
     """
-    Clasificador de intención por similitud semántica.
+    Clasifica la intención del usuario comparando su mensaje contra ejemplos
+    predefinidos usando similitud semántica (embeddings).
 
-    Embebe el mensaje del usuario y lo compara contra ejemplos por intención
-    usando similitud coseno. El score final es un híbrido de max y mean
-    similarity para mayor robustez que usar solo el promedio.
+    No es clasificación por palabras clave — el modelo entiende el significado,
+    así que frases que no están en los ejemplos igual se clasifican bien.
     """
 
     def __init__(
@@ -28,6 +28,8 @@ class IntentService:
         self.model_name = model_name
         self.intent_examples = intent_examples or INTENT_EXAMPLES
         self._model = SentenceTransformer(self.model_name)
+        # Pre-calculamos los embeddings de los ejemplos al iniciar para no
+        # hacerlo en cada consulta
         self._intent_embeddings = self._build_intent_embeddings()
 
     def classify_topic(
@@ -69,7 +71,8 @@ class IntentService:
         query_embedding: np.ndarray,
         example_embeddings: np.ndarray
     ) -> float:
-        """Score híbrido: 70% similitud máxima + 30% promedio."""
+        # Combinamos el máximo y el promedio para que un solo ejemplo muy cercano
+        # cuente bastante, pero también importa el promedio general del intent
         similarities = np.dot(example_embeddings, query_embedding)
         return (0.7 * float(np.max(similarities))) + (0.3 * float(np.mean(similarities)))
 
