@@ -9,7 +9,6 @@ faiss-cpu
 pymupdf
 pymupdf4llm
 numpy
-chromadb
 groq
 python-dotenv
 duckduckgo-search

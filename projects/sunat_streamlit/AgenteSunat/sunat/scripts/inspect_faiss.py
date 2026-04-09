@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-# scripts/inspect_chroma.py
+# scripts/inspect_faiss.py
 """
-Herramienta de inspección de la base de datos vectorial ChromaDB.
+Herramienta de inspección de la base de datos vectorial (FAISS).
 
 Muestra exactamente qué hay indexado: fuentes, cantidad de chunks,
 y permite hacer búsquedas de prueba para verificar que el RAG funciona.
 
 Uso:
-    python scripts/inspect_chroma.py                  # resumen general
-    python scripts/inspect_chroma.py --samples        # muestra un chunk de muestra por archivo
-    python scripts/inspect_chroma.py --search "multas"  # prueba una búsqueda
+    python scripts/inspect_faiss.py                  # resumen general
+    python scripts/inspect_faiss.py --samples        # muestra un chunk de muestra por archivo
+    python scripts/inspect_faiss.py --search "multas"  # prueba una búsqueda
 """
 
 import argparse
@@ -24,38 +24,35 @@ from app.core import config as cfg
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Inspecciona el contenido de ChromaDB.")
+    parser = argparse.ArgumentParser(description="Inspecciona el contenido del índice FAISS.")
     parser.add_argument("--samples", action="store_true", help="Muestra un chunk de ejemplo por archivo.")
     parser.add_argument("--search", type=str, default="", help="Ejecuta una búsqueda de prueba.")
     parser.add_argument("--all", action="store_true", help="Muestra TODOS los chunks (puede ser largo).")
     args = parser.parse_args()
 
     print("\n" + "=" * 60)
-    print("  INSPECTOR DE CHROMADB — SUNAT Chatbot")
+    print("  INSPECTOR DE ÍNDICE FAISS — SUNAT Chatbot")
     print("=" * 60)
 
     rag = RagService()
 
     if not rag.is_indexed():
-        print("\n  ⚠ ChromaDB está VACÍO.")
+        print("\n  ⚠ El índice FAISS está VACÍO.")
         print("  Ejecuta primero: python scripts/ingest_documents.py")
         return
 
-    # --- Obtener todos los documentos de la colección ---
-    total = rag._collection.count()
-    all_data = rag._collection.get(include=["metadatas", "documents"])
-
-    metadatas = all_data["metadatas"]
-    documents  = all_data["documents"]
+    metadatas = rag._metadatas
+    documents = rag._documents
+    total = rag._index.ntotal
 
     # Contar chunks por archivo fuente
     fuentes = Counter(m["source"] for m in metadatas)
 
     # --- Resumen general ---
-    print(f"\n  📦 Base de datos    : {cfg.CHROMA_DIR}")
-    print(f"  📚 Colección        : {cfg.COLLECTION_NAME}")
-    print(f"  🔢 Total de chunks  : {total}")
-    print(f"  📄 Archivos fuente  : {len(fuentes)}")
+    print(f"\n  📦 Directorio índice : {cfg.INDEX_DIR}")
+    print(f"  📚 Colección         : {cfg.COLLECTION_NAME}")
+    print(f"  🔢 Total de chunks   : {total}")
+    print(f"  📄 Archivos fuente   : {len(fuentes)}")
 
     print(f"\n  Chunks por archivo:")
     print("  " + "-" * 50)
@@ -79,7 +76,6 @@ def main():
             print(f"\n  📄 Fuente  : {src}")
             print(f"  📍 Chunk   : {meta.get('chunk_index', '?')} de {meta.get('total_chunks', '?')}")
             print(f"  📝 Texto   :")
-            # Mostrar los primeros 300 caracteres del chunk
             preview = doc[:300].replace("\n", " ")
             print(f"     {preview}...")
 

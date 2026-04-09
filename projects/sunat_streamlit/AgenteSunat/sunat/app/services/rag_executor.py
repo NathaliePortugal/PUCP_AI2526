@@ -65,7 +65,7 @@ FALLBACK_LINKS = (
 
 class RagExecutor:
     """
-    Busca en ChromaDB y genera la respuesta usando el LLM.
+    Busca en el índice FAISS y genera la respuesta usando el LLM.
     Si no hay LLM disponible, devuelve los chunks directamente formateados.
     """
 
@@ -166,20 +166,22 @@ class RagExecutor:
 
     def _format_single_result(self, query: str, result: Dict[str, Any]) -> str:
         source = self._format_source_name(result["source"])
+        # Limpiar el chunk: quitar puntuación inicial suelta (inicio a mitad de oración)
+        text = result["text"].lstrip(", ;:)]\n")
         return (
-            f"Encontré información relevante:\n\n"
-            f"{result['text']}\n\n"
-            f"Fuente: {source} (relevancia: {result['similarity_pct']}%)"
+            f"Según los documentos SUNAT ({source}):\n\n"
+            f"{text}"
         )
 
     def _format_multiple_results(self, results: List[Dict[str, Any]]) -> str:
-        lines = ["Encontré información relevante en los documentos SUNAT:\n"]
+        lines = []
         for i, result in enumerate(results, start=1):
             source = self._format_source_name(result["source"])
-            lines.append(f"--- Sección {i} ({source}, relevancia: {result['similarity_pct']}%) ---")
-            lines.append(result["text"])
+            text = result["text"].lstrip(", ;:)]\n")
+            lines.append(f"**{source}:**")
+            lines.append(text)
             lines.append("")
-        lines.append("Si necesitas más detalle, puedes preguntarme con más detalle.")
+        lines.append("¿Te gustaría más detalle sobre alguno de estos puntos?")
         return "\n".join(lines)
 
     def _no_results_response(self) -> str:

@@ -114,17 +114,17 @@ def main():
     print("\n" + "=" * 65)
     print("  EVALUACIÓN DEL PIPELINE RAG")
     print("=" * 65)
-    print("\n  Inicializando ChromaDB y modelo de embeddings...")
+    print("\n  Inicializando FAISS y modelo de embeddings...")
 
     rag = RagService()
 
     if not rag.is_indexed():
-        print("\n  ERROR: No hay documentos indexados en ChromaDB.")
+        print("\n  ERROR: No hay documentos indexados en FAISS.")
         print("  Ejecuta primero: python scripts/ingest_documents.py")
         sys.exit(1)
 
     stats = rag.get_stats()
-    print(f"  ChromaDB listo: {stats['total_chunks']} fragmentos indexados.")
+    print(f"  FAISS listo: {stats['total_chunks']} fragmentos indexados.")
     print(f"  Evaluando {len(RAG_TEST_CASES)} queries de prueba con top-{args.k}...\n")
 
     # Resultados acumulados
@@ -139,7 +139,7 @@ def main():
         query    = caso["query"]
         expected = caso["expected_sources"]
 
-        # Buscar en ChromaDB
+        # Buscar en FAISS
         resultados = rag.search(query=query, n_results=args.k)
 
         # Calcular métricas para este query

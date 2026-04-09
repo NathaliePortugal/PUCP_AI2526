@@ -392,7 +392,7 @@ with tab_rag:
     )
 
     if st.button("▶ Ejecutar evaluación RAG", type="primary", key="btn_rag"):
-        with st.spinner("Conectando con ChromaDB y evaluando consultas..."):
+        with st.spinner("Cargando índice FAISS y evaluando consultas..."):
 
             @st.cache_resource
             def cargar_rag_service():
@@ -401,7 +401,7 @@ with tab_rag:
             rag = cargar_rag_service()
 
             if not rag.is_indexed():
-                st.error("ChromaDB está vacío. Levanta la app principal primero para que se indexen los documentos.")
+                st.error("El índice FAISS está vacío. Levanta la app principal primero para que se indexen los documentos.")
                 st.stop()
 
             hit1_total = 0
@@ -632,7 +632,7 @@ with tab_integration:
         f"**{total_checks_all} assertions** sobre el estado final — todo en un solo botón."
     )
     st.warning(
-        "Usa el orquestador completo. Si ChromaDB no está indexado, los flujos que "
+        "Usa el orquestador completo. Si el índice FAISS no está indexado, los flujos que "
         "terminan en RAG devolverán el fallback.",
         icon="⚠️",
     )

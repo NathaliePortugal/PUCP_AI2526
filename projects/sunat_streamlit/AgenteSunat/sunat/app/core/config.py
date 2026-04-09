@@ -6,7 +6,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 DOCS_DIR = BASE_DIR / "app" / "data" / "docs"
-CHROMA_DIR = BASE_DIR / "chroma_db"
+INDEX_DIR = BASE_DIR / "faiss_index"
 
 COLLECTION_NAME = "sunat_docs"
 

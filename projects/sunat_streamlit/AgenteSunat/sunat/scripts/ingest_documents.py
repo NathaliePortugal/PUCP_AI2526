@@ -9,10 +9,10 @@ Script de ingesta manual de documentos para el RAG.
 - Cuando se desea forzar la re-indexación (por ejemplo, después de modificar un documento).
 
 ¿Qué hace?
-1. Borra la colección existente en ChromaDB (para comenzar desde cero).
+1. Borra el índice FAISS existente (para comenzar desde cero).
 2. Carga todos los archivos .txt y .pdf de data/docs/.
 3. Los divide en chunks.
-4. Los indexa en ChromaDB.
+4. Los indexa en FAISS.
 
 Uso:
     # Desde la carpeta sunat/
@@ -52,7 +52,7 @@ def setup_logging(verbose: bool) -> None:
 def parse_args() -> argparse.Namespace:
     """Define y parsea los argumentos de línea de comandos."""
     parser = argparse.ArgumentParser(
-        description="Indexa documentos SUNAT en ChromaDB para el sistema RAG.",
+        description="Indexa documentos SUNAT en FAISS para el sistema RAG.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Ejemplos:
@@ -115,13 +115,13 @@ def main() -> None:
         print(f"   • {f.name} ({size_kb:.1f} KB)")
 
     print(f"\n🔧 Configuración:")
-    print(f"   ChromaDB: {cfg.CHROMA_DIR}")
+    print(f"   Índice FAISS: {cfg.INDEX_DIR}")
     print(f"   Colección: {cfg.COLLECTION_NAME}")
     print(f"   Modelo: {cfg.EMBEDDING_MODEL}")
     print(f"   Chunk size: {cfg.CHUNK_SIZE} chars | Overlap: {cfg.CHUNK_OVERLAP} chars")
 
     # Inicializar el servicio RAG
-    print("\n⏳ Inicializando ChromaDB y modelo de embeddings...")
+    print("\n⏳ Inicializando índice FAISS y modelo de embeddings...")
     print("   (La primera vez puede tardar ~30 segundos mientras descarga el modelo)")
     start_time = time.time()
 
@@ -130,23 +130,16 @@ def main() -> None:
     # Verificar si ya hay documentos indexados
     if rag_service.is_indexed() and not args.force:
         stats = rag_service.get_stats()
-        print(f"\n✅ Ya hay {stats['total_chunks']} fragmentos indexados en ChromaDB.")
+        print(f"\n✅ Ya hay {stats['total_chunks']} fragmentos indexados en FAISS.")
         print("   Para re-indexar, se debe utilizar el flag --force:")
         print("   python scripts/ingest_documents.py --force")
         return
 
-    # Si --force, limpiar la colección antes de re-indexar
+    # Si --force, limpiar el índice antes de re-indexar
     if args.force and rag_service.is_indexed():
-        print("\n🗑  Limpiando colección existente (--force activado)...")
-        # ChromaDB: delete_collection y crear de nuevo
-        rag_service._client.delete_collection(cfg.COLLECTION_NAME)
-        # Re-crear la colección vacía
-        rag_service._collection = rag_service._client.get_or_create_collection(
-            name=cfg.COLLECTION_NAME,
-            embedding_function=rag_service._embedding_fn,
-            metadata={"hnsw:space": "cosine"},
-        )
-        print("   Colección limpiada.")
+        print("\n🗑  Limpiando índice existente (--force activado)...")
+        rag_service.clear()
+        print("   Índice limpiado.")
 
     # Ejecutar la indexación
     print(f"\n📚 Indexando {len(all_files)} documento(s)...")
@@ -160,7 +153,7 @@ def main() -> None:
         print(f"✅ Indexación completada exitosamente.")
         print(f"   Total de fragmentos indexados: {total_chunks}")
         print(f"   Tiempo total: {elapsed:.1f} segundos")
-        print(f"   ChromaDB guardado en: {cfg.CHROMA_DIR}")
+        print(f"   Índice FAISS guardado en: {cfg.INDEX_DIR}")
     else:
         print(f"⚠ No se indexaron fragmentos. Se deben revisar los archivos en {docs_dir}")
 

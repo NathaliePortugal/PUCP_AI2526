@@ -6,7 +6,7 @@ Cada caso tiene:
 - query: lo que pregunta el usuario
 - expected_sources: lista de nombres de archivo donde DEBERÍA estar la respuesta.
   El evaluador verifica si alguno de esos archivos aparece en los resultados
-  recuperados por ChromaDB.
+  recuperados por el índice FAISS.
 
 Los nombres de archivo corresponden exactamente a los PDFs almacenados en
 app/data/docs/ (subcarpetas: RegimenMYPE, DeclaracionMensual-F621-IGVRenta,

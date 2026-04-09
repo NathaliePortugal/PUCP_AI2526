@@ -82,13 +82,13 @@ def init_services() -> ChatOrchestrator:
     rag_service = RagService()
 
     if not rag_service.is_indexed():
-        logger.info("ChromaDB vacío. Indexando documentos SUNAT...")
+        logger.info("Índice FAISS vacío. Indexando documentos SUNAT...")
         total = rag_service.index_documents()
         logger.info("Indexación completada: %d fragmentos.", total)
     else:
         stats = rag_service.get_stats()
         logger.info(
-            "ChromaDB cargado. Colección '%s' tiene %d fragmentos.",
+            "Índice FAISS cargado. Colección '%s' tiene %d fragmentos.",
             stats["collection_name"],
             stats["total_chunks"],
         )
