@@ -12,3 +12,4 @@ numpy
 chromadb
 groq
 python-dotenv
+duckduckgo-search

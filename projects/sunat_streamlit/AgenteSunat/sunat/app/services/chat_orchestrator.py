@@ -96,6 +96,9 @@ class ChatOrchestrator:
             "Por favor intenta reformular tu consulta."
         )
 
+    # Solo para testing: convierte ConversationState a dict plano para que los tests
+    # puedan acceder a result["state"]["active_tool"], result["state"]["entities"], etc.
+    # Uso: scratch_test_tool_flow_assertions.py, pages/2_🧪_Evaluacion.py (tab Integración)
     def _serialize_state(self, state: ConversationState) -> dict:
         return {
             "session_id": state.session_id,

@@ -267,11 +267,11 @@ with tab_intent:
         c4.metric("Confianza media",  f"{conf_m:.3f}")
 
         if acc >= 85:
-            st.success("✅ Nivel BUENO — el clasificador funciona bien para producción académica.")
+            st.success("✅ Nivel BUENO — el clasificador funciona correctamente para producción.")
         elif acc >= 70:
-            st.warning("⚠️ Nivel ACEPTABLE — considera agregar ejemplos a los intents con F1 bajo.")
+            st.warning("⚠️ Nivel ACEPTABLE — se recomienda agregar ejemplos a los intents con F1 bajo.")
         else:
-            st.error("❌ Necesita mejora — revisa los intents confundidos y agrega más ejemplos.")
+            st.error("❌ Necesita mejora — se recomienda revisar los intents confundidos y agregar más ejemplos.")
 
         import pandas as pd
         import plotly.graph_objects as go

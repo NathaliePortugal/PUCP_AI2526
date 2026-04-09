@@ -115,12 +115,7 @@ class ConversationRouter:
         )
 
     def _is_informational_query(self, message: str) -> bool:
-        """
-        Detecta si el usuario quiere información (→ RAG) o quiere iniciar
-        un wizard guiado (→ tool).
-
-        Usa el LLM si está disponible. Si no, cae en una lista de patrones.
-        """
+        """Determina si el mensaje solicita información (→ RAG) o desea iniciar un wizard guiado (→ tool)."""
         if self._llm and self._llm.is_available():
             try:
                 result = self._llm._client.chat.completions.create(

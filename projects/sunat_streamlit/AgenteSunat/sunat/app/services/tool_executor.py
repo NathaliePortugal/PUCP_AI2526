@@ -15,6 +15,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 from app.services.state_store import ConversationState
+from app.services.web_search_service import WebSearchService
 
 
 class ToolExecutor:
@@ -87,6 +88,7 @@ class ToolExecutor:
     def __init__(self, rag_service=None, llm_service=None) -> None:
         self.rag_service = rag_service
         self.llm_service = llm_service
+        self.web_search = WebSearchService()
 
     def execute(self, tool_name: str, message: str, state: ConversationState) -> str:
         """Despacha a la tool correspondiente según el nombre recibido del router."""
@@ -171,6 +173,9 @@ class ToolExecutor:
         )
 
         if self.llm_service and self.llm_service.is_available():
+            web_query = f"formalizar negocio {economic_activity} persona {person_type} SUNAT requisitos"
+            web_snippet = self.web_search.search(web_query)
+
             prompt = (
                 "Un usuario acaba de completar el flujo de formalización de negocio "
                 "en el asistente virtual de SUNAT Perú. Este es su perfil:\n\n"
@@ -181,10 +186,13 @@ class ToolExecutor:
                 "Si tendrá trabajadores, incluye las obligaciones laborales (ESSALUD, AFP/ONP, planilla). "
                 "Al final, ofrece continuar ayudando con otras consultas como regímenes tributarios."
             )
+            context_chunks = [perfil]
+            if web_snippet:
+                context_chunks.append(web_snippet)
             try:
                 generated = self.llm_service.generate(
                     query=prompt,
-                    context_chunks=[perfil],
+                    context_chunks=context_chunks,
                 )
                 if generated:
                     return generated
@@ -349,7 +357,7 @@ class ToolExecutor:
             f"- Cantidad de trabajadores: {worker_count}"
         )
 
-        # Intentar enriquecer con RAG + LLM
+        # Enriquecer con RAG + web search + LLM
         rag_chunk = ""
         rag_source = ""
         if self.rag_service and self.rag_service.is_indexed():
@@ -358,7 +366,10 @@ class ToolExecutor:
                 rag_chunk = rag_results[0]["text"]
                 rag_source = rag_results[0]["source"]
 
+        web_snippet = self.web_search.search(detail_query)
         sources_block = self._build_sources_block(rag_source) if rag_source else ""
+        if web_snippet:
+            sources_block += "\n- sunat.gob.pe (búsqueda web)"
 
         if self.llm_service and self.llm_service.is_available():
             prompt = (
@@ -373,6 +384,8 @@ class ToolExecutor:
             context_chunks = [perfil]
             if rag_chunk:
                 context_chunks.append(rag_chunk)
+            if web_snippet:
+                context_chunks.append(web_snippet)
             try:
                 generated = self.llm_service.generate(
                     query=prompt,

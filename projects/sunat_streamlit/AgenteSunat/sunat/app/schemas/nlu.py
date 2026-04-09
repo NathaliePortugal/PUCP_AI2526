@@ -1,6 +1,6 @@
 # app/schemas/nlu.py
 
-from typing import Dict, List, Optional
+from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
@@ -14,7 +14,6 @@ class IntentResult(BaseModel):
     confidence: float = Field(..., ge=0.0, le=1.0)
     ranked_labels: List[RankedIntentLabel] = Field(default_factory=list)
     normalized_text: str = Field(..., min_length=1)
-    context_used: Dict[str, str] = Field(default_factory=dict)
 
 
 class RouteDecision(BaseModel):

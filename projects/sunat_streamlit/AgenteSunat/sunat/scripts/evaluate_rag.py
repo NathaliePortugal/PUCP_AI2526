@@ -249,22 +249,22 @@ def main():
     elif hit_rate_top >= 0.70:
         nivel = "ACEPTABLE"
         consejo = (
-            "Considera mejorar el chunking o agregar más contenido "
+            "Se recomienda mejorar el chunking o agregar más contenido "
             "a los documentos con bajo Hit Rate."
         )
     else:
         nivel = "NECESITA MEJORA ✗"
         consejo = (
-            "El RAG no encuentra bien los documentos. Opciones:\n"
-            "  1. Verifica que los docs estén indexados (python scripts/ingest_documents.py)\n"
-            "  2. Ajusta CHUNK_SIZE y CHUNK_OVERLAP en config.py\n"
-            "  3. Sube MAX_DISTANCE en config.py (actualmente filtra resultados distantes)"
+            "El RAG no recupera correctamente los documentos. Opciones:\n"
+            "  1. Verificar que los docs estén indexados (python scripts/ingest_documents.py)\n"
+            "  2. Ajustar CHUNK_SIZE y CHUNK_OVERLAP en config.py\n"
+            "  3. Incrementar MAX_DISTANCE en config.py (actualmente filtra resultados distantes)"
         )
 
     print(f"\n  Nivel general : {nivel}")
     print(f"  Consejo       : {consejo}")
     print(f"\n  Benchmark de referencia:")
-    print(f"  - Hit Rate@3 >= 85% → Bueno para demo académica")
+    print(f"  - Hit Rate@3 >= 85% → Bueno")
     print(f"  - Hit Rate@3 >= 70% → Aceptable")
     print(f"  - MRR >= 0.7        → El doc correcto aparece cerca del top")
     print()

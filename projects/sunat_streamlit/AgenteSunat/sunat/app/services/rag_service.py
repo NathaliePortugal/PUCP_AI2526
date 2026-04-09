@@ -15,13 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class RagService:
-    """
-    Se encarga de todo lo relacionado a los documentos: cargarlos,
-    dividirlos en chunks, indexarlos en ChromaDB y buscar luego.
-
-    ChromaDB guarda los datos en disco así que no se re-indexa cada vez
-    que se inicia la app.
-    """
+    """Gestiona la carga, chunking, indexación en ChromaDB y búsqueda de documentos."""
 
     def __init__(self) -> None:
         cfg.CHROMA_DIR.mkdir(parents=True, exist_ok=True)
@@ -83,12 +77,7 @@ class RagService:
         n_results: int = cfg.TOP_K_RESULTS,
         source_filter: Optional[Sequence[str]] = None,
     ) -> List[Dict[str, Any]]:
-        """
-        Busca los chunks más parecidos al query.
-
-        Trae más candidatos de los necesarios, filtra por distancia máxima
-        y deduplica por archivo (máximo 1 resultado por documento).
-        """
+        """Busca los chunks más similares al query, filtra por distancia máxima y deduplica por documento."""
         if not self.is_indexed():
             return []
 
@@ -177,11 +166,7 @@ class RagService:
             return ""
 
     def _extract_text_from_pdf(self, file_path: Path) -> str:
-        """
-        Extrae texto del PDF. Primero intenta con pymupdf4llm que maneja mejor
-        tablas y columnas. Si falla, usa fitz como alternativa.
-        """
-        # Paso 1: pymupdf4llm — mejor calidad para PDFs con tablas
+        """Extrae texto del PDF. Intenta primero con pymupdf4llm; usa fitz como fallback."""
         # table_strategy="lines" evita el modelo ONNX que puede fallar en Windows
         try:
             import pymupdf4llm
@@ -228,11 +213,7 @@ class RagService:
             return ""
 
     def _chunk_text(self, text: str, chunk_size: int, overlap: int) -> List[str]:
-        """
-        Divide el texto en chunks con un pequeño overlap entre ellos para
-        no perder contexto cuando la respuesta está a caballo entre dos chunks.
-        Intenta cortar en saltos de línea o espacios para no partir palabras.
-        """
+        """Divide el texto en chunks con overlap. Corta en saltos de línea o espacios para no partir palabras."""
         if len(text) <= chunk_size:
             return [text.strip()] if text.strip() else []
 

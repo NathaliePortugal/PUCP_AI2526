@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional
 from app.services.llm_service import LLMService
 from app.services.rag_service import RagService
 from app.services.state_store import ConversationState
+from app.services.web_search_service import WebSearchService
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +72,7 @@ class RagExecutor:
     def __init__(self, rag_service: RagService, llm_service: LLMService) -> None:
         self.rag_service = rag_service
         self.llm_service = llm_service
+        self.web_search = WebSearchService()
 
     def answer(self, message: str, state: ConversationState) -> str:
         state.menu_context = "consulta_documental"
@@ -84,6 +86,8 @@ class RagExecutor:
         intent = state.current_topic or ""
         source_filter: Optional[List[str]] = INTENT_TO_SOURCES.get(intent)
 
+        MIN_SIMILARITY = 55  # chunks con menos del 55% de similitud se descartan
+
         results = self.rag_service.search(query=message, n_results=3, source_filter=source_filter)
 
         # Si con el filtro no encontramos nada, intentamos sin filtro
@@ -91,11 +95,27 @@ class RagExecutor:
             logger.info("Búsqueda filtrada vacía para '%s'. Reintentando sin filtro.", intent)
             results = self.rag_service.search(query=message, n_results=3)
 
+        # Si el mejor resultado no es suficientemente similar, descartar
+        if results and results[0]["similarity_pct"] < MIN_SIMILARITY:
+            logger.info(
+                "Mejor resultado tiene similitud %.1f%% < %d%%. Descartando para '%s'.",
+                results[0]["similarity_pct"], MIN_SIMILARITY, intent,
+            )
+            results = []
+
         if not results:
+            # Fallback: buscar en sunat.gob.pe antes de rendirse
+            web_snippet = self.web_search.search(message)
+            if web_snippet:
+                logger.info("RAG sin resultados. Usando snippet de sunat.gob.pe como contexto.")
+                return self._build_response(message, [], extra_context=web_snippet)
             return self._no_results_response()
 
         return self._build_response(message, results)
 
+    # Solo para testing: variante de answer() que acepta contexto adicional
+    # para evaluar búsquedas enriquecidas sin pasar por el flujo principal.
+    # Uso: scripts/evaluate_rag.py u otros tests que necesiten inyectar contexto extra.
     def answer_with_context(
         self,
         message: str,
@@ -123,7 +143,12 @@ class RagExecutor:
         extra_context: str = "",
     ) -> str:
         chunks_text = [r["text"] for r in results]
+        if extra_context:
+            chunks_text.append(extra_context)
+
         fuentes_bloque = self._build_sources_block(results)
+        if extra_context:
+            fuentes_bloque += "\n- sunat.gob.pe (búsqueda web)"
 
         if self.llm_service.is_available():
             generated = self.llm_service.generate(query=query, context_chunks=chunks_text)

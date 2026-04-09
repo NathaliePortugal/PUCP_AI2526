@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
@@ -12,13 +12,7 @@ from app.schemas.nlu import IntentResult, RankedIntentLabel
 
 
 class IntentService:
-    """
-    Clasifica la intención del usuario comparando su mensaje contra ejemplos
-    predefinidos usando similitud semántica (embeddings).
-
-    No es clasificación por palabras clave — el modelo entiende el significado,
-    así que frases que no están en los ejemplos igual se clasifican bien.
-    """
+    """Clasifica la intención del mensaje comparando contra ejemplos predefinidos mediante similitud semántica."""
 
     def __init__(
         self,
@@ -28,18 +22,11 @@ class IntentService:
         self.model_name = model_name
         self.intent_examples = intent_examples or INTENT_EXAMPLES
         self._model = SentenceTransformer(self.model_name)
-        # Pre-calculamos los embeddings de los ejemplos al iniciar para no
-        # hacerlo en cada consulta
+        # Embeddings pre-calculados al iniciar para evitar recalcularlos en cada consulta
         self._intent_embeddings = self._build_intent_embeddings()
 
-    def classify_topic(
-        self,
-        text: str,
-        context: Optional[Dict[str, Any]] = None
-    ) -> IntentResult:
+    def classify_topic(self, text: str) -> IntentResult:
         normalized_text = self._normalize_text(text)
-        context_used = self._extract_relevant_context(context or {})
-
         query_embedding = self._model.encode(normalized_text, normalize_embeddings=True)
 
         ranked = []
@@ -55,7 +42,6 @@ class IntentService:
             confidence=top_label.score,
             ranked_labels=ranked[:5],
             normalized_text=normalized_text,
-            context_used=context_used,
         )
 
     def _build_intent_embeddings(self) -> Dict[str, np.ndarray]:
@@ -71,16 +57,18 @@ class IntentService:
         query_embedding: np.ndarray,
         example_embeddings: np.ndarray
     ) -> float:
-        # Combinamos el máximo y el promedio para que un solo ejemplo muy cercano
-        # cuente bastante, pero también importa el promedio general del intent
+        # Combina máximo y promedio: un ejemplo muy cercano tiene peso relevante sin ignorar el promedio general
         similarities = np.dot(example_embeddings, query_embedding)
         return (0.7 * float(np.max(similarities))) + (0.3 * float(np.mean(similarities)))
 
     def _normalize_text(self, text: str) -> str:
         return " ".join(text.strip().split())
 
-    def _extract_relevant_context(self, context: Dict[str, Any]) -> Dict[str, str]:
-        cleaned: Dict[str, str] = {}
-        if current_topic := context.get("current_topic"):
-            cleaned["current_topic"] = str(current_topic)
-        return cleaned
+    # FUTURO: clasificación sensible al contexto de la conversación.
+    # Recibiría state.current_topic para desambiguar intents similares
+    # cuando el usuario ya está en medio de un flujo.
+    # def _extract_relevant_context(self, context: Dict[str, Any]) -> Dict[str, str]:
+    #     cleaned: Dict[str, str] = {}
+    #     if current_topic := context.get("current_topic"):
+    #         cleaned["current_topic"] = str(current_topic)
+    #     return cleaned

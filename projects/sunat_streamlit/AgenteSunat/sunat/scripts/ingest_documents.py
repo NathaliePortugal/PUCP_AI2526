@@ -3,19 +3,16 @@
 """
 Script de ingesta manual de documentos para el RAG.
 
-¿Cuándo usar este script?
-- La primera vez que configuras el proyecto.
-- Cuando agregas nuevos documentos PDF o TXT a la carpeta data/docs/.
-- Cuando quieres forzar la re-indexación (por ejemplo, después de modificar un doc).
+¿Cuándo se utiliza este script?
+- La primera vez que se configura el proyecto.
+- Cuando se agregan nuevos documentos PDF o TXT a la carpeta data/docs/.
+- Cuando se desea forzar la re-indexación (por ejemplo, después de modificar un documento).
 
 ¿Qué hace?
-1. Borra la colección existente en ChromaDB (para empezar limpio).
+1. Borra la colección existente en ChromaDB (para comenzar desde cero).
 2. Carga todos los archivos .txt y .pdf de data/docs/.
 3. Los divide en chunks.
 4. Los indexa en ChromaDB.
-
-Nota: el servidor FastAPI también indexa automáticamente al arrancar si ChromaDB
-está vacío. Este script es útil cuando quieres forzar una re-indexación completa.
 
 Uso:
     # Desde la carpeta sunat/
@@ -25,7 +22,7 @@ Uso:
     python scripts/ingest_documents.py --verbose
 
     # Para indexar desde una carpeta diferente
-    python scripts/ingest_documents.py --docs-dir /ruta/a/tus/docs
+    python scripts/ingest_documents.py --docs-dir /ruta/a/los/docs
 """
 
 import argparse
@@ -96,7 +93,7 @@ def main() -> None:
     docs_dir = args.docs_dir
     if not docs_dir.exists():
         print(f"\n❌ Error: La carpeta de documentos no existe: {docs_dir}")
-        print(f"   Crea la carpeta y agrega tus archivos .txt o .pdf.")
+        print(f"   Se debe crear la carpeta y agregar los archivos .txt o .pdf.")
         sys.exit(1)
 
     # Listar archivos encontrados
@@ -108,7 +105,7 @@ def main() -> None:
 
     if not all_files:
         print(f"\n⚠ No se encontraron archivos .txt o .pdf en: {docs_dir}")
-        print("  Agrega documentos SUNAT y vuelve a ejecutar este script.")
+        print("  Se deben agregar documentos SUNAT y volver a ejecutar este script.")
         sys.exit(0)
 
     print(f"\n📁 Directorio: {docs_dir}")
@@ -134,10 +131,8 @@ def main() -> None:
     if rag_service.is_indexed() and not args.force:
         stats = rag_service.get_stats()
         print(f"\n✅ Ya hay {stats['total_chunks']} fragmentos indexados en ChromaDB.")
-        print("   Si quieres re-indexar, usa el flag --force:")
+        print("   Para re-indexar, se debe utilizar el flag --force:")
         print("   python scripts/ingest_documents.py --force")
-        print("\n   O accede al endpoint de re-indexación del servidor:")
-        print("   POST http://localhost:8000/rag/reindex")
         return
 
     # Si --force, limpiar la colección antes de re-indexar
@@ -166,11 +161,8 @@ def main() -> None:
         print(f"   Total de fragmentos indexados: {total_chunks}")
         print(f"   Tiempo total: {elapsed:.1f} segundos")
         print(f"   ChromaDB guardado en: {cfg.CHROMA_DIR}")
-        print(f"\n💡 El servidor FastAPI cargará estos datos automáticamente.")
-        print(f"   Si el servidor ya está corriendo, usa:")
-        print(f"   POST http://localhost:8000/rag/reindex")
     else:
-        print(f"⚠ No se indexaron fragmentos. Revisa los archivos en {docs_dir}")
+        print(f"⚠ No se indexaron fragmentos. Se deben revisar los archivos en {docs_dir}")
 
     print("=" * 60 + "\n")
 

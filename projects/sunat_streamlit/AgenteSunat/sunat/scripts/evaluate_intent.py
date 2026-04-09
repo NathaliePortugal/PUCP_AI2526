@@ -290,25 +290,24 @@ def main():
             print(f"  Esperado : {e['esperado']}")
             print(f"  Predicho : {e['predicho']}  (confianza: {e['conf']:.3f})")
 
-    # ---- Interpretación para el diplomado ----
     print("\n" + "=" * 65)
     print("  INTERPRETACIÓN DE RESULTADOS")
     print("=" * 65)
     acc = metricas["accuracy"] * 100
     if acc >= 85:
         nivel = "BUENO ✓"
-        consejo = "El clasificador funciona bien para producción académica."
+        consejo = "El clasificador funciona correctamente para producción."
     elif acc >= 70:
         nivel = "ACEPTABLE ⚠"
-        consejo = "Considera agregar más ejemplos a los intents con F1 bajo."
+        consejo = "Se recomienda agregar más ejemplos a los intents con F1 bajo."
     else:
         nivel = "NECESITA MEJORA ✗"
-        consejo = "Revisa los intents confundidos y agrega ejemplos más variados."
+        consejo = "Se recomienda revisar los intents confundidos y agregar ejemplos más variados."
 
     print(f"\n  Nivel general: {nivel}")
     print(f"  Consejo      : {consejo}")
     print(f"\n  Benchmark de referencia:")
-    print(f"  - Accuracy >= 85%  → Bueno para demo académica")
+    print(f"  - Accuracy >= 85%  → Bueno")
     print(f"  - Accuracy >= 70%  → Aceptable con ajustes")
     print(f"  - Accuracy <  70%  → Necesita más ejemplos de entrenamiento")
     print()

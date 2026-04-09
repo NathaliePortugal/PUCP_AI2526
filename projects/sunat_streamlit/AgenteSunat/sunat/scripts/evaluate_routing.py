@@ -294,14 +294,14 @@ def main():
     elif accuracy >= 0.70:
         nivel = "ACEPTABLE ⚠"
         consejo = (
-            "Revisa los casos que fallan. Posibles causas:\n"
+            "Se recomienda revisar los casos que fallan. Posibles causas:\n"
             "  - Umbral de confianza muy alto/bajo (ajustar LOW_CONFIDENCE_THRESHOLD)\n"
             "  - Falta mapeo en TOOL_INTENT_TO_NAME o DOCUMENTAL_INTENTS"
         )
     else:
         nivel = "NECESITA MEJORA ✗"
         consejo = (
-            "El routing tiene problemas estructurales. Revisa:\n"
+            "El routing tiene problemas estructurales. Se debe revisar:\n"
             "  - Las constantes en app/core/constants.py\n"
             "  - La lógica de decisión en app/services/router.py\n"
             "  - Los thresholds de confianza"
