@@ -1,0 +1,57 @@
+@use 'variables' as *;
+
+// Tarjeta con sombra
+@mixin card($padding: $spacing-md) {
+  background: $white;
+  border-radius: $radius-md;
+  padding: $padding;
+  box-shadow: $shadow-sm;
+}
+
+// Boton base
+@mixin btn-base {
+  border: none;
+  cursor: pointer;
+  font-size: $font-md;
+  border-radius: $radius-full;
+  padding: $spacing-sm $spacing-md;
+  transition: filter 0.15s ease;
+
+  &:hover { filter: brightness(0.9); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// Boton primario (amarillo Amazon)
+@mixin btn-primary {
+  @include btn-base;
+  background: $yellow;
+  font-weight: bold;
+}
+
+// Input de formulario
+@mixin input-base {
+  width: 100%;
+  padding: $spacing-sm 12px;
+  border: 1px solid $gray-mid;
+  border-radius: $radius-sm;
+  font-size: $font-md;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &:focus { border-color: $link; }
+}
+
+// Truncar texto en N lineas
+@mixin line-clamp($lines) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Media query helper
+@mixin responsive($bp) {
+  @if $bp == mobile  { @media (max-width: $mobile)  { @content; } }
+  @if $bp == tablet  { @media (max-width: $tablet)  { @content; } }
+  @if $bp == desktop { @media (max-width: $desktop) { @content; } }
+}

@@ -1,0 +1,60 @@
+// ── Tema alternativo: Neon/Gamer ────────────────────────────
+// Para activarlo: reemplaza los valores de la paleta principal con estos
+//
+// $navy:    #0a0a0f;       fondo muy oscuro
+// $blue:    #0d0d1a;       fondo secundario oscuro
+// $orange:  #39ff14;       verde neon (accion principal)
+// $yellow:  #00f5ff;       cyan electrico (hover/acentos)
+// $link:    #ff00ff;       magenta (links)
+// $green:   #39ff14;       verde neon
+// $red:     #ff3131;       rojo neon (precios/alertas)
+// $star:    #ffff00;       amarillo electrico (estrellas)
+// $bg:      #0a0a0f;       fondo general oscuro
+// $gray-light: #1a1a2e;   superficies oscuras
+// ─────────────────────────────────────────────────────────────
+
+// Paleta Amazon-inspired
+$navy:       #131921;
+$blue:       #232f3e;
+$orange:     #febd69;
+$yellow:     #f0c14b;
+$link:       #007185;
+$green:      #067d62;
+$red:        #c7511f;
+$star:       #f0a500;
+
+// Grises
+$bg:         #f3f3f3;
+$white:      #ffffff;
+$gray-light: #f0f0f0;
+$gray-mid:   #ccc;
+$gray-text:  #565959;
+
+// Tipografia
+$font-base:  "Amazon Ember", Arial, sans-serif;
+$font-sm:    13px;
+$font-md:    14px;
+$font-lg:    18px;
+$font-xl:    22px;
+
+// Espaciado
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// Border radius
+$radius-sm:  4px;
+$radius-md:  8px;
+$radius-full: 20px;
+
+// Sombras
+$shadow-sm:  0 1px 4px rgba(0, 0, 0, 0.12);
+$shadow-md:  0 4px 16px rgba(0, 0, 0, 0.2);
+$shadow-lg:  0 8px 32px rgba(0, 0, 0, 0.25);
+
+// Breakpoints
+$mobile:     480px;
+$tablet:     768px;
+$desktop:    1024px;

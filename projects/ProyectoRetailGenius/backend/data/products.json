@@ -1,0 +1,223 @@
+[
+  {
+    "id": "TV-001",
+    "name": "Samsung Smart TV 55\" 4K QLED",
+    "category": "electronica",
+    "price_usd": 749.99,
+    "rating": 4.7,
+    "description": "Televisor 55 pulgadas 4K QLED con Tizen OS, HDR10+, 4 puertos HDMI, WiFi integrado",
+    "brand": "Samsung",
+    "in_stock": true,
+    "image_url": "/img/samsung55Qled.jpg"
+  },
+  {
+    "id": "TV-002",
+    "name": "LG OLED 65\" 4K Smart TV",
+    "category": "electronica",
+    "price_usd": 1199.00,
+    "rating": 4.9,
+    "description": "Pantalla OLED 65 pulgadas con procesador α9 Gen6, Dolby Vision, webOS 23, perfect black",
+    "brand": "LG",
+    "in_stock": true,
+    "image_url": "/img/LgOled65.jpg"
+  },
+  {
+    "id": "TV-003",
+    "name": "TCL 50\" 4K Android TV",
+    "category": "electronica",
+    "price_usd": 349.99,
+    "rating": 4.3,
+    "description": "Smart TV 50 pulgadas con Android TV, Google Assistant, Chromecast integrado, HDR",
+    "brand": "TCL",
+    "in_stock": true,
+    "image_url": "/img/tcl504k.jpg"
+  },
+  {
+    "id": "LAP-001",
+    "name": "Lenovo IdeaPad 15\" Intel Core i5",
+    "category": "computadores",
+    "price_usd": 599.00,
+    "rating": 4.4,
+    "description": "Laptop 15.6 FHD, Intel Core i5-1235U, 16GB RAM, 512GB SSD, Windows 11, batería 10h",
+    "brand": "Lenovo",
+    "in_stock": true,
+    "image_url": "/img/lenovoideapad.jpg"
+  },
+  {
+    "id": "LAP-002",
+    "name": "HP Pavilion 14\" Ryzen 5",
+    "category": "computadores",
+    "price_usd": 499.00,
+    "rating": 4.2,
+    "description": "Laptop ultradelgada 14 pulgadas, AMD Ryzen 5 7530U, 8GB RAM, 256GB SSD, ideal para estudiantes",
+    "brand": "HP",
+    "in_stock": true,
+    "image_url": "/img/hppavilion14.jpg"
+  },
+  {
+    "id": "LAP-003",
+    "name": "MacBook Air M2 13\"",
+    "category": "computadores",
+    "price_usd": 1099.00,
+    "rating": 4.9,
+    "description": "Laptop premium con chip M2, 8GB RAM unificada, 256GB SSD, pantalla Liquid Retina, batería 18h",
+    "brand": "Apple",
+    "in_stock": false,
+    "image_url": "/img/mcbookAirM2.jpg"
+  },
+  {
+    "id": "CEL-001",
+    "name": "Samsung Galaxy A54 5G",
+    "category": "celulares",
+    "price_usd": 329.00,
+    "rating": 4.5,
+    "description": "Smartphone 6.4 pulgadas AMOLED, 128GB, cámara triple 50MP, batería 5000mAh, 5G, Android 13",
+    "brand": "Samsung",
+    "in_stock": true,
+    "image_url": "/img/samsungGalaxya54.jpg"
+  },
+  {
+    "id": "CEL-002",
+    "name": "iPhone 15 128GB",
+    "category": "celulares",
+    "price_usd": 799.00,
+    "rating": 4.8,
+    "description": "iPhone 15 con chip A16 Bionic, cámara 48MP, Dynamic Island, USB-C, iOS 17",
+    "brand": "Apple",
+    "in_stock": true,
+    "image_url": "/img/iphone15.jpg"
+  },
+  {
+    "id": "CEL-003",
+    "name": "Xiaomi Redmi Note 12 Pro",
+    "category": "celulares",
+    "price_usd": 219.00,
+    "rating": 4.3,
+    "description": "Smartphone AMOLED 6.67 pulgadas, 256GB, cámara 200MP, carga rápida 67W, 5G",
+    "brand": "Xiaomi",
+    "in_stock": true,
+    "image_url": "/img/redminote12.jpg"
+  },
+  {
+    "id": "AUD-001",
+    "name": "Sony WH-1000XM5 Audífonos",
+    "category": "audio",
+    "price_usd": 299.00,
+    "rating": 4.8,
+    "description": "Audífonos over-ear con cancelación de ruido líder, 30h batería, micrófono integrado, Bluetooth 5.2",
+    "brand": "Sony",
+    "in_stock": true,
+    "image_url": "/img/sonywh.jpg"
+  },
+  {
+    "id": "AUD-002",
+    "name": "JBL Tune 770NC",
+    "category": "audio",
+    "price_usd": 99.99,
+    "rating": 4.3,
+    "description": "Audífonos inalámbricos con ANC adaptativo, 70h batería, plegables, llamadas manos libres",
+    "brand": "JBL",
+    "in_stock": true,
+    "image_url": "/img/jbltune.jpg"
+  },
+  {
+    "id": "HOG-001",
+    "name": "Horno Microondas Samsung 32L",
+    "category": "hogar",
+    "price_usd": 149.00,
+    "rating": 4.4,
+    "description": "Microondas 32 litros, 900W, 10 niveles de potencia, display digital, color negro elegante",
+    "brand": "Samsung",
+    "in_stock": true,
+    "image_url": "/img/microondasamsung32l.jpg"
+  },
+  {
+    "id": "HOG-002",
+    "name": "Aspiradora Robot iRobot Roomba j7",
+    "category": "hogar",
+    "price_usd": 449.00,
+    "rating": 4.6,
+    "description": "Robot aspirador con navegación inteligente, detecta obstáculos, compatible Alexa/Google, app WiFi",
+    "brand": "iRobot",
+    "in_stock": true,
+    "image_url": "/img/roombaj7.jpg"
+  },
+  {
+    "id": "GAM-001",
+    "name": "PlayStation 5 Slim Digital",
+    "category": "gaming",
+    "price_usd": 399.00,
+    "rating": 4.9,
+    "description": "Consola PS5 Slim edición digital, SSD ultrarrápido 1TB, DualSense controller, ray tracing 4K",
+    "brand": "Sony",
+    "in_stock": false,
+    "image_url": "/img/ps5slim.jpg"
+  },
+  {
+    "id": "GAM-002",
+    "name": "Xbox Series S 512GB",
+    "category": "gaming",
+    "price_usd": 299.00,
+    "rating": 4.5,
+    "description": "Consola next-gen compacta, 1440p 120fps, Game Pass compatible, SSD 512GB, all-digital",
+    "brand": "Microsoft",
+    "in_stock": true,
+    "image_url": "/img/xboxs.jpg"
+  }
+,
+  {
+    "id": "PET-001",
+    "name": "Comedero Automatico SmartFeed Pro",
+    "category": "mascotas",
+    "price_usd": 89.99,
+    "rating": 4.6,
+    "description": "Comedero automatico WiFi con app, programa hasta 6 comidas al dia, camara integrada para ver a tu mascota, capacidad 3kg de alimento seco",
+    "brand": "PetTech",
+    "in_stock": true,
+    "image_url": "/img/smartfeedpro.jpg"
+  },
+  {
+    "id": "PET-002",
+    "name": "Pelota Solar Interactiva RoboPlay",
+    "category": "mascotas",
+    "price_usd": 34.99,
+    "rating": 4.4,
+    "description": "Pelota electronica que se mueve sola con energia solar, detecta movimiento del gato o perro, patron de movimiento aleatorio, resistente al agua",
+    "brand": "PetTech",
+    "in_stock": false,
+    "image_url": "/img/roboplay.jpg"
+  },
+  {
+    "id": "PET-003",
+    "name": "Chip Localizador GPS PetTrack Mini",
+    "category": "mascotas",
+    "price_usd": 49.99,
+    "rating": 4.7,
+    "description": "Localizador GPS para collar, tracking en tiempo real por app, zona segura configurable con alerta si tu mascota sale, bateria 7 dias, resistente al agua",
+    "brand": "PetTrack",
+    "in_stock": true,
+    "image_url": "/img/pettrackmini.jpg"
+  },
+  {
+    "id": "PET-004",
+    "name": "Puerta Inteligente ChipDoor XL",
+    "category": "mascotas",
+    "price_usd": 129.00,
+    "rating": 4.5,
+    "description": "Puerta para mascotas con lector NFC integrado, se abre solo con el chip del collar de tu mascota, bloqueo automatico de noche, compatible perros y gatos hasta 15kg",
+    "brand": "SmartPet",
+    "in_stock": true,
+    "image_url": "/img/chipdoor.jpg"
+  },
+  {
+    "id": "PET-005",
+    "name": "Fuente de Agua Inteligente AquaPet 2L",
+    "category": "mascotas",
+    "price_usd": 44.99,
+    "rating": 4.3,
+    "description": "Fuente de agua con filtro carbon activado, sensor de nivel que envia alerta al celular, flujo ajustable, bomba silenciosa, capacidad 2 litros",
+    "brand": "PetTech",
+    "in_stock": true,
+    "image_url": "/img/aquapet.jpg"
+  }
+]
