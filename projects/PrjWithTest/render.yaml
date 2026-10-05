@@ -1,0 +1,26 @@
+# Blueprint de Render.com: alternativa sin tarjeta de credito a Cloud Run
+# (ver docs/plantilla-proyecto.md, seccion GCP, para la justificacion).
+# Uso: en Render, "New +" -> "Blueprint" -> conectar este repositorio.
+# Render detecta este archivo solo.
+services:
+  - type: web
+    name: vendebot-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: STORAGE_BACKEND
+        value: sqlite
+      - key: SQLITE_PATH
+        value: /tmp/vendebot.db
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: gemini-flash-latest
+      - key: LANGFUSE_PUBLIC_KEY
+        sync: false
+      - key: LANGFUSE_SECRET_KEY
+        sync: false
+      - key: LANGFUSE_HOST
+        value: https://us.cloud.langfuse.com
